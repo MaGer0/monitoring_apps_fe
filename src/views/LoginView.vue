@@ -30,6 +30,18 @@
                     required
                   />
                 </div>
+                <!-- <div class="mb-3">
+                  <label for="name" class="form-label"
+                    ><i class="bi bi-person-circle"></i> Name</label
+                  >
+                  <input
+                    type="text"
+                    class="form-control"  
+                    placeholder="Enter your name"
+                    v-model="loginData.name"
+                    required
+                  />
+                </div> -->
                 <div class="mb-3">
                   <label for="password" class="form-label"
                     ><i class="bi bi-key"></i> Password</label
@@ -78,6 +90,7 @@ export default {
       if (this.loginData.nik && this.loginData.password) {
         const newLoginData = {
             nik: this.loginData.nik,
+            name: this.loginData.name,
             password: this.loginData.password
         }
         axios
