@@ -3,28 +3,24 @@
     <div
       class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-100 position-sticky top-0 start-0"
     >
-      <a
-        href="/"
-        class="d-flex align-items-center pb-3 mb-md-0 me-md-auto text-white text-decoration-none"
+      <router-link
+        to="/"
+        class="d-flex align-items-center pb-3 mb-md-0 me-md-auto text-white text-decoration-none mt-3"
       >
-        <span class="fs-5 d-none d-sm-inline">Monitoring Apps</span>
-      </a>
+        <h1 class="fs-5 d-none d-sm-inline">Monitoring Apps</h1>
+      </router-link>
       <ul
         class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start"
         id="menu"
       >
         <li class="nav-item">
           <router-link class="nav-link align-middle px-0" to="/">
-            <i class="fs-4 bi-house text-white"></i>
-            <span class="ms-1 d-none d-sm-inline text-white">Dashboard</span>
+            <i class="fs-4 bi bi-bar-chart text-white"></i>
+            <span class="ms-1 d-none d-sm-inline text-white"> Dashboard</span>
           </router-link>
           <router-link class="nav-link align-middle px-0" to="/c">
             <i class="fs-4 bi-plus-square text-white"></i>
-            <span class="ms-1 d-none d-sm-inline text-white">Monitoring</span>
-          </router-link>
-          <router-link class="nav-link align-middle px-0" to="/">
-            <i class="fs-4 bi bi-person-circle text-white"></i>
-            <span class="ms-1 d-none d-sm-inline text-white">My Account</span>
+            <span class="ms-1 d-none d-sm-inline text-white"> Monitoring</span>
           </router-link>
         </li>
       </ul>
@@ -37,13 +33,20 @@
           data-bs-toggle="dropdown"
           aria-expanded="false"
         >
-          <div class="bi bi-person-circle" width="50" height="50"></div>
-          <!-- <span class="d-none d-sm-inline mx-1">{{currentUser.username}}</span> -->
+          <i class="bi bi-person-circle fs-5"></i>
+          <div v-if="currentUser.name">
+            <span class="d-none d-sm-inline fw-bold mx-1">{{
+              currentUser.name
+            }}</span>
+          </div>
+          <div v-else>
+            <span class="d-none d-sm-inline fw-bold mx-1">{{ "" }}</span>
+          </div>
         </a>
         <ul class="dropdown-menu dropdown-menu-white text-small shadow">
           <li>
-            <router-link to="/" class="dropdown-item">
-              <span class="text-black fw-block" @click="logout">Log Out</span>
+            <router-link to="/login" class="dropdown-item">
+              <span class="text-danger fw-bold" @click="logout">Logout</span>
             </router-link>
           </li>
         </ul>
@@ -57,31 +60,47 @@ import axios from "axios";
 export default {
   name: "AppSidebar",
   data() {
-    return {};
+    return {
+      currentUser: {},
+    };
   },
   methods: {
     logout() {
       axios
-        .get("http://localhost:8000/api/login", {
+        .get("http://localhost:8000/api/logout", {
           headers: {
             Accept: "application/json",
-            Authorization: `Bearer ${localStorage.token}`,
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         })
         .then(() => {
           localStorage.removeItem("token");
+          this.$router.push({ path: "/login" });
         })
-        .catch(() => {
-            this.$router.push({ path: "/login" });
-            alert("Logout Berhasil");
+        .catch((error) => {
+          console.log(error);
         });
     },
   },
-  mounted(){
-
-  }
+  mounted() {
+    axios
+      .get("http://127.0.0.1:8000/api/teachers/@me", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+      .then((response) => {
+        this.currentUser = response.data.data
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  },
 };
 </script>
 
 <style>
+body {
+  font-family: "Montserrat", sans-serif;
+}
 </style>
