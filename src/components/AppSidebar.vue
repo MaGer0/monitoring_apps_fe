@@ -4,7 +4,7 @@
       class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-100 position-sticky top-0 start-0"
     >
       <router-link
-        to="/"
+        to="/home"
         class="d-flex align-items-center pb-3 mb-md-0 me-md-auto text-white text-decoration-none mt-3"
       >
         <h1 class="fs-5 d-none d-sm-inline">Monitoring Apps</h1>
@@ -14,7 +14,7 @@
         id="menu"
       >
         <li class="nav-item">
-          <router-link class="nav-link align-middle px-0" to="/">
+          <router-link class="nav-link align-middle px-0" to="/home">
             <i class="fs-4 bi bi-bar-chart text-white"></i>
             <span class="ms-1 d-none d-sm-inline text-white"> Dashboard</span>
           </router-link>
