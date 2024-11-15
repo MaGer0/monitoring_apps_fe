@@ -90,7 +90,7 @@ export default {
         },
       })
       .then((response) => {
-        this.currentUser = response.data.data;
+        this.currentUser = response.data.data
       })
       .catch((error) => {
         console.log(error);
