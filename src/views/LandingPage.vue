@@ -1,5 +1,5 @@
 <template>
-    <div class="landing-page" data-aos="fade-up">
+    <div class="landing-page w-100" data-aos="fade-up">
       <div class="content">
         <h1 data-aos="fade-down">Welcome to Our Website</h1>
         <p data-aos="fade-right">Explore our features and get the best experience.</p>
