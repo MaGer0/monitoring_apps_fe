@@ -1,5 +1,5 @@
 <template>
-    <div class="landing-page w-100" data-aos="fade-up">
+    <div class="landing-page w-100 vh-100" data-aos="fade-up">
       <div class="content">
         <h1 data-aos="fade-down">Welcome to Our Website</h1>
         <p data-aos="fade-right">Explore our features and get the best experience.</p>
@@ -33,7 +33,6 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
     background: linear-gradient(to bottom, #a2d5f2, #d3efff);
     background-size: cover;
     background-position: center;
