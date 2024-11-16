@@ -1,12 +1,15 @@
 <template>
-  <div id="login" class="">
-    <div
-      class="login-container container d-flex justify-content-center align-items-center vh-100"
-    >
+  <div
+    id="login"
+    data-aos="fade-right"
+    class="d-flex justify-content-center align-items-center vh-100 w-100"
+  >
+    <div class="login-container container">
       <div class="card w-100 shadow bg-body-teritary rounded">
         <div class="row g-0">
           <div class="col-md-6 col-lg-5 d-none d-md-block">
             <img
+              data-aos="zoom-in"
               src="../assets/images/register-access-login-password-internet-online-website-concept-flat-illustration_385073-108.png"
               alt="Login Illustration"
               class="img-fluid login-image"
@@ -55,10 +58,7 @@
                   />
                 </div>
                 <div class="login-btn mb-4">
-                  <button
-                    type="submit"
-                    class="btn btn-primary w-100"
-                  >
+                  <button type="submit" class="btn btn-primary w-100">
                     Login
                   </button>
                 </div>
@@ -75,6 +75,7 @@
 </template>
 
 <script>
+import Aos from "aos";
 import axios from "axios";
 
 export default {
@@ -89,15 +90,15 @@ export default {
     loginMethod() {
       if (this.loginData.nik && this.loginData.password) {
         const newLoginData = {
-            nik: this.loginData.nik,
-            name: this.loginData.name,
-            password: this.loginData.password
-        }
+          nik: this.loginData.nik,
+          name: this.loginData.name,
+          password: this.loginData.password,
+        };
         axios
           .post("http://localhost:8000/api/login", newLoginData, {
             headers: {
               "Content-Type": "application/json",
-            }
+            },
           })
           .then((response) => {
             localStorage.setItem("token", response.data);
@@ -112,6 +113,12 @@ export default {
         this.$router.push({ path: "/login" });
       }
     },
+  },
+  mounted() {
+    Aos.init({
+      duration: 1000,
+      once: true,
+    });
   },
 };
 </script>
