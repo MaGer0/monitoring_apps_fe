@@ -1,26 +1,47 @@
 <template>
-  <div class="col-auto col-md-3 col-xl-2 px-sm-2 px-0 bg-dark">
+  <div
+    class="col-auto col-md-3 col-xl-2 px-sm-2 px-0 sidebar position-sticky" 
+    data-aos="fade-right"
+  >
     <div
       class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-100 position-sticky top-0 start-0"
     >
       <router-link
         to="/home"
         class="d-flex align-items-center pb-3 mb-md-0 me-md-auto text-white text-decoration-none mt-3"
+        data-aos="fade-right"
+        data-aos-duration="1000"
+        data-aos-once="true"
+        data-aos-delay="80"
       >
-        <h1 class="fs-5 d-none d-sm-inline">Monitoring Apps</h1>
+        <h1 class="fs-5 d-none d-sm-inline text">Monitoring Apps</h1>
       </router-link>
       <ul
         class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start"
         id="menu"
       >
         <li class="nav-item">
-          <router-link class="nav-link align-middle px-0" to="/home">
+          <router-link
+            class="nav-link align-middle px-0"
+            to="/dashboard"
+            data-aos="fade-right"
+            data-aos-duration="1000"
+            data-aos-once="true"
+            data-aos-delay="90"
+          >
             <i class="fs-4 bi bi-bar-chart text-white"></i>
-            <span class="ms-1 d-none d-sm-inline text-white"> Dashboard</span>
+            <span class="ms-1 d-none d-sm-inline text-white text"> Dashboard</span>
           </router-link>
-          <router-link class="nav-link align-middle px-0" to="/c">
+          <router-link
+            class="nav-link align-middle px-0"
+            to="/monitoring"
+            data-aos="fade-right"
+            data-aos-duration="1000"
+            data-aos-once="true"
+            data-aos-delay="100"
+          >
             <i class="fs-4 bi-plus-square text-white"></i>
-            <span class="ms-1 d-none d-sm-inline text-white"> Monitoring</span>
+            <span class="ms-1 d-none d-sm-inline text-white text"> Monitoring</span>
           </router-link>
         </li>
       </ul>
@@ -35,7 +56,7 @@
         >
           <i class="bi bi-person-circle fs-5"></i>
           <div v-if="currentUser.name">
-            <span class="d-none d-sm-inline fw-bold mx-1">{{
+            <span class="d-none d-sm-inline fw-bold mx-2">{{
               currentUser.name
             }}</span>
           </div>
@@ -56,6 +77,8 @@
 </template>
 
 <script>
+import Aos from "aos";
+import "aos/dist/aos.css";
 import axios from "axios";
 export default {
   name: "AppSidebar",
@@ -90,7 +113,7 @@ export default {
         },
       })
       .then((response) => {
-        this.currentUser = response.data.data
+        this.currentUser = response.data.data;
       })
       .catch((error) => {
         console.log(error);
@@ -100,7 +123,13 @@ export default {
 </script>
 
 <style>
-body {
-  font-family: "Montserrat", sans-serif;
+.text:active {
+  font-weight: bold;
+}
+
+.sidebar {
+  background-image: url("https://img.freepik.com/premium-photo/blue-future-technology-book-cover-background-25_769134-404.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 </style>
