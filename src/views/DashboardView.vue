@@ -3,11 +3,12 @@
   <div class="dashboard-container w-100">
     <div class="container p-3" data-aos="fade-right">
       <div class="header mb-5">
-        <h2 class="fw-bold">Dashboard</h2>
+        <h2 class="fw-bold" data-aos="fade-up">Dashboard</h2>
       </div>
       <div class="content-container">
         <table
           class="table table-responsive-md table-bordered rounded shadow-sm"
+          data-aos="fade-up"
         >
           <thead class="table-dark">
             <tr>
@@ -27,7 +28,11 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(data, index) in dashboardData" :key="data.id">
+            <tr
+              v-for="(data, index) in dashboardData"
+              :key="data.id"
+              data-aos="fade-up"
+            >
               <td class="text-center align-middle">{{ index + 1 }}</td>
               <td class="text-center align-middle">{{ data.Teacher.nik }}</td>
               <td class="text-center align-middle">{{ data.Teacher.name }}</td>
@@ -35,7 +40,7 @@
               <td class="text-center align-middle">{{ data.description }}</td>
               <td class="text-center align-middle">{{ data.date }}</td>
               <td>
-                <table class="w-100 table table-sm">
+                <table class="w-100 table table-sm" data-aos="zoom-in">
                   <tbody>
                     <tr v-for="detail in data.not_presents" :key="detail.id">
                       <td class="text-center">{{ detail.student.name }}</td>
@@ -47,7 +52,7 @@
                 </table>
               </td>
               <td>
-                <table class="w-100 table table-sm">
+                <table class="w-100 table table-sm" data-aos="zoom-in">
                   <tbody>
                     <tr v-for="detail in data.not_presents" :key="detail.id">
                       <td class="text-center">{{ detail.keterangan }}</td>
