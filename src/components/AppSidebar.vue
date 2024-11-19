@@ -1,6 +1,6 @@
 <template>
   <div
-    class="col-auto col-md-3 col-xl-2 px-sm-2 px-0 sidebar position-sticky" 
+    class="col-auto col-md-3 col-xl-2 px-sm-2 px-0 sidebar position-sticky"
     data-aos="fade-right"
   >
     <div
@@ -17,12 +17,13 @@
         <h1 class="fs-5 d-none d-sm-inline text">Monitoring Apps</h1>
       </router-link>
       <ul
-        class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start"
+        class="nav flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start"
         id="menu"
       >
         <li class="nav-item">
           <router-link
-            class="nav-link align-middle px-0"
+            class="nav-link active align-middle bg-transparent px-0"
+            active-class="fw-bold"
             to="/dashboard"
             data-aos="fade-right"
             data-aos-duration="1000"
@@ -30,25 +31,33 @@
             data-aos-delay="90"
           >
             <i class="fs-4 bi bi-bar-chart text-white"></i>
-            <span class="ms-1 d-none d-sm-inline text-white text"> Dashboard</span>
+            <span class="ms-1 d-none d-sm-inline text-white text">
+              Dashboard</span
+            >
           </router-link>
+        </li>
+
+        <li class="nav-item">
           <router-link
-            class="nav-link align-middle px-0"
-            to="/monitoring"
+            class="nav-link active bg-transparent align-middle px-0"
+            active-class="fw-bold"
+            to="/student"
             data-aos="fade-right"
             data-aos-duration="1000"
             data-aos-once="true"
             data-aos-delay="100"
           >
-            <i class="fs-4 bi-plus-square text-white"></i>
-            <span class="ms-1 d-none d-sm-inline text-white text"> Monitoring</span>
+            <i class="fs-4 bi bi-people text-white fw-bold"></i>
+            <span class="ms-1 d-none d-sm-inline text-white text">
+              Student</span
+            >
           </router-link>
         </li>
       </ul>
       <hr />
       <div class="dropdown pb-4">
-        <a
-          href="#"
+        <router-link
+          to="/profile"
           class="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
           id="dropdownUser1"
           data-bs-toggle="dropdown"
@@ -63,11 +72,16 @@
           <div v-else>
             <span class="d-none d-sm-inline fw-bold mx-1">{{ "" }}</span>
           </div>
-        </a>
-        <ul class="dropdown-menu dropdown-menu-white text-small shadow">
+        </router-link>
+        <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
           <li>
             <router-link to="/login" class="dropdown-item">
               <span class="text-danger fw-bold" @click="logout">Logout</span>
+            </router-link>
+          </li>
+          <li>
+            <router-link to="/profile" class="dropdown-item">
+              <span class="text-info fw-bold">Profile</span>
             </router-link>
           </li>
         </ul>
@@ -123,10 +137,6 @@ export default {
 </script>
 
 <style>
-.text:active {
-  font-weight: bold;
-}
-
 .sidebar {
   background-image: url("https://img.freepik.com/premium-photo/blue-future-technology-book-cover-background-25_769134-404.jpg");
   background-repeat: no-repeat;
