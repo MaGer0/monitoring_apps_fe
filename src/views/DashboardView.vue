@@ -1,14 +1,14 @@
 <template>
   <AppSidebar />
   <div class="dashboard-container w-100">
-    <div class="container p-3" data-aos="fade-right">
-      <div class="header mb-5">
-        <h2 class="fw-bold" data-aos="fade-up">Dashboard</h2>
+    <div class="container p-3" ref="dashboard">
+      <div class="header mb-5" ref="dashboardHeader">
+        <h2 class="fw-bold">Dashboard</h2>
       </div>
       <div class="content-container">
         <table
           class="table table-responsive-md table-bordered rounded shadow-sm"
-          data-aos="fade-up"
+          ref="dashboardTable"
         >
           <thead class="table-dark">
             <tr>
@@ -31,7 +31,7 @@
             <tr
               v-for="(data, index) in dashboardData"
               :key="data.id"
-              data-aos="fade-up"
+              ref="tableRows"
             >
               <td class="text-center align-middle">{{ index + 1 }}</td>
               <td class="text-center align-middle">{{ data.Teacher.nik }}</td>
@@ -40,7 +40,7 @@
               <td class="text-center align-middle">{{ data.description }}</td>
               <td class="text-center align-middle">{{ data.date }}</td>
               <td>
-                <table class="w-100 table table-sm" data-aos="zoom-in">
+                <table class="w-100 table table-sm">
                   <tbody>
                     <tr v-for="detail in data.not_presents" :key="detail.id">
                       <td class="text-center">{{ detail.student.name }}</td>
@@ -52,7 +52,7 @@
                 </table>
               </td>
               <td>
-                <table class="w-100 table table-sm" data-aos="zoom-in">
+                <table class="w-100 table table-sm">
                   <tbody>
                     <tr v-for="detail in data.not_presents" :key="detail.id">
                       <td class="text-center">{{ detail.keterangan }}</td>
@@ -73,8 +73,7 @@
 
 <script>
 import AppSidebar from "@/components/AppSidebar.vue";
-import Aos from "aos";
-import "aos/dist/aos.css";
+import gsap from "gsap";
 import axios from "axios";
 
 export default {
@@ -97,11 +96,38 @@ export default {
       })
       .then((response) => {
         this.dashboardData = response.data.data;
+        this.animateTableRows()
       })
       .catch((error) => {
         console.log(error);
       });
-    Aos.init();
+
+    gsap.from(this.$refs.dashboardHeader, {
+      opacity: 0,
+      y: -50,
+      duration: 1,
+      ease: "power3.out",
+    });
+
+    gsap.from(this.$refs.dashboard, {
+      opacity: 0,
+      scale: 0.9,
+      duration: 1,
+      delay: 0.5,
+      ease: "power3.out",
+    });
+  },
+  methods: {
+    animateTableRows() {
+      const rows = this.$refs.tableRows;
+      gsap.from(rows, {
+        opacity: 0,
+        y: 20,
+        stagger: 0.1,
+        delay: 1,
+        ease: "power3.out",
+      });
+    },
   },
 };
 </script>
