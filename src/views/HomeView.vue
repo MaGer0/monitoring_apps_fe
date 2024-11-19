@@ -1,7 +1,7 @@
 <template>
   <AppSidebar/>
-  <div id="home" data-aos="fade-up" class="container d-flex justify-content-center align-items-center vh-100">
-    <h1 class="text-center">Welcome!</h1>
+  <div id="home" data-aos="fade-right" class="container d-flex justify-content-center align-items-center">
+    <h1 data-aos="zoom-out-up" class="text-center">Welcome!</h1>
   </div>
 </template>
 
@@ -24,5 +24,10 @@ export default {
 </script>
 
 <style>
-
+#home {
+  background-image: url("https://img.freepik.com/free-vector/gradient-white-monochrome-background_23-2149017048.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+}
 </style>
