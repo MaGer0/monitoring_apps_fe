@@ -96,7 +96,7 @@ export default {
       })
       .then((response) => {
         this.dashboardData = response.data.data;
-        this.animateTableRows();
+        this.animateTableRows()
       })
       .catch((error) => {
         console.log(error);
