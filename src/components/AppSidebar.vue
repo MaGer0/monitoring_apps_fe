@@ -1,7 +1,7 @@
 <template>
   <div
     class="col-auto col-md-3 col-xl-2 px-sm-2 px-0 sidebar position-sticky"
-    data-aos="fade-right"
+    ref="sidebar"
   >
     <div
       class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-100 position-sticky top-0 start-0"
@@ -9,26 +9,21 @@
       <router-link
         to="/home"
         class="d-flex align-items-center pb-3 mb-md-0 me-md-auto text-white text-decoration-none mt-3"
-        data-aos="fade-right"
-        data-aos-duration="1000"
-        data-aos-once="true"
-        data-aos-delay="80"
+        ref="logo"
       >
         <h1 class="fs-5 d-none d-sm-inline text">Monitoring Apps</h1>
       </router-link>
       <ul
         class="nav flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start"
         id="menu"
+        ref="menu"
       >
         <li class="nav-item">
           <router-link
             class="nav-link active align-middle bg-transparent px-0"
             active-class="fw-bold"
             to="/dashboard"
-            data-aos="fade-right"
-            data-aos-duration="1000"
-            data-aos-once="true"
-            data-aos-delay="90"
+            ref="dashboardLink"
           >
             <i class="fs-4 bi bi-bar-chart text-white"></i>
             <span class="ms-1 d-none d-sm-inline text-white text">
@@ -42,10 +37,7 @@
             class="nav-link active bg-transparent align-middle px-0"
             active-class="fw-bold"
             to="/student"
-            data-aos="fade-right"
-            data-aos-duration="1000"
-            data-aos-once="true"
-            data-aos-delay="100"
+            ref="studentLink"
           >
             <i class="fs-4 bi bi-people text-white fw-bold"></i>
             <span class="ms-1 d-none d-sm-inline text-white text">
@@ -55,7 +47,7 @@
         </li>
       </ul>
       <hr />
-      <div class="dropdown pb-4">
+      <div class="dropdown pb-4" ref="dropdown">
         <router-link
           to="/profile"
           class="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
@@ -91,9 +83,9 @@
 </template>
 
 <script>
-import Aos from "aos";
-import "aos/dist/aos.css";
+import { gsap } from "gsap";
 import axios from "axios";
+
 export default {
   name: "AppSidebar",
   data() {
@@ -120,6 +112,34 @@ export default {
     },
   },
   mounted() {
+    gsap.from(this.$refs.sidebar, {
+      x: "-100%",
+      duration: 1,
+      ease: "power3.out",
+    });
+
+    gsap.from(this.$refs.logo, {
+      opacity: 0,
+      y: -50,
+      duration: 0.8,
+      delay: 0.5,
+    });
+
+    gsap.from(this.$refs.menu.children, {
+      opacity: 0,
+      y: 20,
+      duration: 0.5,
+      delay: 0.8,
+      stagger: 0.2,
+    });
+
+    gsap.from(this.$refs.dropdown, {
+      opacity: 0,
+      y: 30,
+      duration: 0.8,
+      delay: 1.5,
+    });
+
     axios
       .get("http://127.0.0.1:8000/api/teachers/@me", {
         headers: {
@@ -131,7 +151,7 @@ export default {
       })
       .catch((error) => {
         console.log(error);
-      });
+      })
   },
 };
 </script>
@@ -141,5 +161,6 @@ export default {
   background-image: url("https://img.freepik.com/premium-photo/blue-future-technology-book-cover-background-25_769134-404.jpg");
   background-repeat: no-repeat;
   background-size: cover;
+  transform: translateX(0);
 }
 </style>
