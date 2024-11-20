@@ -3,13 +3,22 @@
   <div class="dashboard-container w-100">
     <div class="container p-3" ref="dashboard">
       <div
-        class="header d-flex justify-content-between align-items-center mb-5"
+        class="header d-flex justify-content-between align-items-center mb-5 gap-2"
         ref="dashboardHeader"
       >
         <h2 class="fw-bold">Dashboard</h2>
-        <button class="btn btn-primary">
-          <i class="bi bi-box-arrow-in-right"></i> Export
-        </button>
+        <div class="d-flex gap-2">
+          <button class="btn btn-primary">
+            <i class="bi bi-box-arrow-in-right"></i> Export
+          </button>
+          <button
+            class="btn btn-warning"
+            id="modalCreate"
+            @click="openCreateModal"
+          >
+            <i class="bi bi-plus-square"></i> Create
+          </button>
+        </div>
       </div>
 
       <div class="content-container">
@@ -140,6 +149,72 @@ export default {
     exportData() {
       const token = "Bearer " + localStorage.getItem("token");
     },
+    createData() {
+      const token = "Bearer " + localStorage.getItem("token");
+    },
+    openCreateModal() {
+      const modalContainer = document.createElement("div");
+      modalContainer.className = "modal-container";
+
+      const modalHeader = document.createElement("div");
+      modalHeader.className = "modal-header";
+
+      const closeBtn = document.createElement("span");
+      closeBtn.className = "close";
+      closeBtn.textContent = "×";
+      closeBtn.style.cursor = "pointer";
+
+      const formHeader = document.createElement("h3");
+      formHeader.textContent = "Create Data";
+
+      modalHeader.appendChild(formHeader);
+      modalHeader.appendChild(closeBtn);
+
+      const modalBody = document.createElement("div");
+      modalBody.className = "modal-body";
+
+      const form = document.createElement("form");
+
+      const inputNIK = this.createInput("text", "Enter your NIK");
+      const inputName = this.createInput("text", "Enter your name");
+      const inputTitle = this.createInput("text", "Enter title");
+      const inputDescription = this.createInput("text", "Enter description");
+      const inputDate = this.createInput("date", "");
+
+      const buttonSubmit = document.createElement("button");
+      buttonSubmit.type = "submit";
+      buttonSubmit.textContent = "Submit";
+      buttonSubmit.className = "btn btn-primary";
+
+      form.append(
+        inputNIK,
+        inputName,
+        inputTitle,
+        inputDescription,
+        inputDate,
+        buttonSubmit
+      );
+
+      modalBody.appendChild(form);
+      modalContainer.appendChild(modalHeader);
+      modalContainer.appendChild(modalBody);
+
+      document.body.appendChild(modalContainer);
+
+      modalContainer.style.display = "block";
+
+      closeBtn.addEventListener("click", () => {
+        modalContainer.remove();
+      });
+    },
+
+    createInput(type, placeholder) {
+      const input = document.createElement("input");
+      input.type = type;
+      input.placeholder = placeholder;
+      input.className = "form-control mb-2";
+      return input;
+    },
   },
 };
 </script>
@@ -198,6 +273,48 @@ td:last-child {
 .card-text {
   margin-bottom: 0.5rem;
   font-size: 0.95rem;
+}
+
+.modal-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  width: 100%;
+  max-width: 500px;
+  background-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  background-color: #007bff;
+  color: white;
+  padding: 1rem !important;
+}
+
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  margin: 1rem;
+}
+
+.close {
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #fff;
+  background: transparent;
+  border: none;
+  outline: none;
+  transition: transform 0.3s ease;
+}
+
+.close:hover {
+  transform: scale(1.2);
 }
 
 @media (max-width: 768px) {
