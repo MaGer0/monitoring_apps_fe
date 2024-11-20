@@ -21,7 +21,7 @@
         </div>
       </div>
 
-      <CreateModals
+      <CreateModal
         v-if="showModal"
         :modals="modal"
         @close="showModal = false"
@@ -93,6 +93,7 @@
 </template>
 
 <script>
+import CreateModal from "@/components/CreateModal.vue";
 import AppSidebar from "@/components/AppSidebar.vue";
 import gsap from "gsap";
 import axios from "axios";
@@ -101,6 +102,7 @@ export default {
   name: "DashboardView",
   components: {
     AppSidebar,
+    CreateModal
   },
   data() {
     return {
