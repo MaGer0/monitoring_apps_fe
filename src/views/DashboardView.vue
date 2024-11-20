@@ -14,12 +14,18 @@
           <button
             class="btn btn-warning"
             id="modalCreate"
-            @click="openCreateModal"
+            @click="showModal = true"
           >
             <i class="bi bi-plus-square"></i> Create
           </button>
         </div>
       </div>
+
+      <CreateModals
+        v-if="showModal"
+        :modals="modal"
+        @close="showModal = false"
+      />
 
       <div class="content-container">
         <div class="table-responsive d-none d-md-block">
@@ -30,11 +36,10 @@
             <thead class="opacity-50">
               <tr class="opacity-100 table-light text">
                 <th class="text-start">No</th>
-                <th class="text-start">Teachers NIK</th>
-                <th class="text-start">Name</th>
-                <th class="text-start">Title</th>
-                <th class="text-start">Description</th>
-                <th class="text-start">Date</th>
+                <th class="text-start">Judul</th>
+                <th class="text-start">Deskripsi</th>
+                <th class="text-start">Jam Mulai</th>
+                <th class="text-start">Jam Selesai</th>
               </tr>
             </thead>
             <tbody>
@@ -44,10 +49,9 @@
                 ref="tableRows"
               >
                 <td class="ps-2 pe-3 text-start">{{ index + 1 }}</td>
-                <td class="ps-2 pe-3 text-start">{{ data.Teacher.nik }}</td>
-                <td class="ps-2 pe-3 text-start">{{ data.Teacher.name }}</td>
                 <td class="ps-2 pe-3 text-start">{{ data.title }}</td>
                 <td class="ps-2 pe-3 text-start">{{ data.description }}</td>
+                <td class="ps-2 pe-3 text-start">{{ data.date }}</td>
                 <td class="ps-2 pe-3 text-start">
                   <div class="d-flex align-items-center">
                     <span>{{ data.date }}</span>
@@ -101,6 +105,8 @@ export default {
   data() {
     return {
       dashboardData: [],
+      modal: {},
+      showModal: false,
     };
   },
   mounted() {
@@ -145,75 +151,6 @@ export default {
         duration: 0.8,
         ease: "power2.out",
       });
-    },
-    exportData() {
-      const token = "Bearer " + localStorage.getItem("token");
-    },
-    createData() {
-      const token = "Bearer " + localStorage.getItem("token");
-    },
-    openCreateModal() {
-      const modalContainer = document.createElement("div");
-      modalContainer.className = "modal-container";
-
-      const modalHeader = document.createElement("div");
-      modalHeader.className = "modal-header";
-
-      const closeBtn = document.createElement("span");
-      closeBtn.className = "close";
-      closeBtn.textContent = "×";
-      closeBtn.style.cursor = "pointer";
-
-      const formHeader = document.createElement("h3");
-      formHeader.textContent = "Create Data";
-
-      modalHeader.appendChild(formHeader);
-      modalHeader.appendChild(closeBtn);
-
-      const modalBody = document.createElement("div");
-      modalBody.className = "modal-body";
-
-      const form = document.createElement("form");
-
-      const inputNIK = this.createInput("text", "Enter your NIK");
-      const inputName = this.createInput("text", "Enter your name");
-      const inputTitle = this.createInput("text", "Enter title");
-      const inputDescription = this.createInput("text", "Enter description");
-      const inputDate = this.createInput("date", "");
-
-      const buttonSubmit = document.createElement("button");
-      buttonSubmit.type = "submit";
-      buttonSubmit.textContent = "Submit";
-      buttonSubmit.className = "btn btn-primary";
-
-      form.append(
-        inputNIK,
-        inputName,
-        inputTitle,
-        inputDescription,
-        inputDate,
-        buttonSubmit
-      );
-
-      modalBody.appendChild(form);
-      modalContainer.appendChild(modalHeader);
-      modalContainer.appendChild(modalBody);
-
-      document.body.appendChild(modalContainer);
-
-      modalContainer.style.display = "block";
-
-      closeBtn.addEventListener("click", () => {
-        modalContainer.remove();
-      });
-    },
-
-    createInput(type, placeholder) {
-      const input = document.createElement("input");
-      input.type = type;
-      input.placeholder = placeholder;
-      input.className = "form-control mb-2";
-      return input;
     },
   },
 };
@@ -275,47 +212,6 @@ td:last-child {
   font-size: 0.95rem;
 }
 
-.modal-container {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 1000;
-  width: 100%;
-  max-width: 500px;
-  background-color: rgba(0, 0, 0, 0.1);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  background-color: #007bff;
-  color: white;
-  padding: 1rem !important;
-}
-
-.modal-body {
-  display: flex;
-  flex-direction: column;
-  margin: 1rem;
-}
-
-.close {
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: #fff;
-  background: transparent;
-  border: none;
-  outline: none;
-  transition: transform 0.3s ease;
-}
-
-.close:hover {
-  transform: scale(1.2);
-}
 
 @media (max-width: 768px) {
   .table-responsive {
