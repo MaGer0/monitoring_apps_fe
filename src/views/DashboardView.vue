@@ -24,6 +24,7 @@
       <CreateModal
         v-if="showModal"
         :modals="modal"
+        :submit="setSubmitData"
         @close="showModal = false"
       />
 
@@ -38,6 +39,7 @@
                 <th class="text-start">No</th>
                 <th class="text-start">Judul</th>
                 <th class="text-start">Deskripsi</th>
+                <th class="text-start">Date</th>
                 <th class="text-start">Jam Mulai</th>
                 <th class="text-start">Jam Selesai</th>
               </tr>
@@ -48,13 +50,14 @@
                 :key="data.id"
                 ref="tableRows"
               >
-                <td class="ps-2 pe-3 text-start">{{ index + 1 }}</td>
-                <td class="ps-2 pe-3 text-start">{{ data.title }}</td>
-                <td class="ps-2 pe-3 text-start">{{ data.description }}</td>
-                <td class="ps-2 pe-3 text-start">{{ data.date }}</td>
-                <td class="ps-2 pe-3 text-start">
+                <td class="text-start">{{ index + 1 }}</td>
+                <td class="text-start">{{ data.title }}</td>
+                <td class="text-start">{{ data.description }}</td>
+                <td class="text-start">{{ data.date }}</td>
+                <td class="text-start">{{ data.start_time }}</td>
+                <td class="text-start">
                   <div class="d-flex align-items-center">
-                    <span>{{ data.date }}</span>
+                    <span>{{ data.end_time }}</span>
                     <button class="btn ms-5 p-0">
                       <i class="bi bi-eye fs-5"></i>
                     </button>
@@ -74,12 +77,12 @@
           >
             <div class="card-body">
               <h5 class="card-title">No: {{ index + 1 }}</h5>
-              <p class="card-text">Teachers NIK: {{ data.Teacher.nik }}</p>
-              <p class="card-text">Name: {{ data.Teacher.name }}</p>
               <p class="card-text">Title: {{ data.title }}</p>
               <p class="card-text">Description: {{ data.description }}</p>
+              <p class="card-text">Date: {{ data.date }}</p>
+              <p class="card-text">Jam Mulai: {{ data.start_time }}</p>
               <p class="card-text">
-                <span>Date: {{ data.date }}</span>
+                <span>Jam Selesai: {{ data.end_time }}</span>
                 <button class="btn ms-3 p-0">
                   <i class="bi bi-eye fs-5"></i>
                 </button>
@@ -102,7 +105,7 @@ export default {
   name: "DashboardView",
   components: {
     AppSidebar,
-    CreateModal
+    CreateModal,
   },
   data() {
     return {
@@ -154,6 +157,9 @@ export default {
         ease: "power2.out",
       });
     },
+    setSubmitData(data) {
+      this.dashboardData.push(data);
+    },
   },
 };
 </script>
@@ -176,23 +182,32 @@ export default {
   z-index: -1;
 }
 
-.table td {
-  vertical-align: middle;
+.content-container {
+  overflow-x: auto;
+  word-wrap: break-word;
 }
 
-.table .btn i {
-  margin: 0;
+.table {
+  table-layout: fixed;
+  width: 100%;
 }
 
 th,
 td {
-  white-space: nowrap;
-  overflow: hidden;
+  word-wrap: break-word;
+  white-space: normal;
+  overflow: auto;
+  text-overflow: ellipsis;
 }
 
 td:last-child {
   text-align: center;
-  width: 15%;
+  word-wrap: break-word;
+}
+
+th:first-child,
+td:first-child {
+  width: 50px;
 }
 
 .table-responsive {
@@ -213,7 +228,6 @@ td:last-child {
   margin-bottom: 0.5rem;
   font-size: 0.95rem;
 }
-
 
 @media (max-width: 768px) {
   .table-responsive {
