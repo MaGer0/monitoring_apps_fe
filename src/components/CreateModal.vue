@@ -34,26 +34,22 @@
             <div class="mb-3 d-flex flex-column">
               <label for="jam-mulai">Jam Mulai :</label>
               <input
-                type="range"
+                type="time"
                 name="jam-mulai"
                 id="jamMulai"
-                min="0"
-                max="23"
-                v-model="modals.start"
+                v-model="modals.start_time"
+                class="input-time"
               />
-              <span>{{ modals.start }}:00</span>
             </div>
             <div class="mb-3 d-flex flex-column">
               <label for="jam-selesai">Jam Selesai :</label>
               <input
-                type="range"
+                type="time"
                 name="jam-selesai"
                 id="jamSelesai"
-                min="0"
-                max="23"
-                v-model="modals.end"
+                v-model="modals.end_time"
+                class="input-time"
               />
-              <span>{{ modals.end }}:00</span>
             </div>
             <div class="modal-footer d-flex justify-content-end gap-2">
               <button
@@ -74,7 +70,8 @@
   </template>
   
   <script>
-  import { gsap } from "gsap";
+  import axios from "axios";
+import { gsap } from "gsap";
   
   export default {
     name: "CreateModals",
@@ -106,7 +103,19 @@
         this.animateModalOut();
       },
       submitForm() {
-        this.$emit("submit", this.modals);
+        const token = "Bearer " + localStorage.getItem("token");
+        axios
+        .post("http://127.0.0.1:8000/api/monitorings", this.modals, {
+          headers: {
+            Authorization: token
+          }
+        })
+        .then((response) => {
+          this.$emit("submit", response.data.data)
+        })
+        .catch((error) => {
+          console.log(error);
+        });
         this.closeModal();
       },
       cancelModal() {
@@ -151,5 +160,20 @@
   .close:hover {
     transition: 0.3s;
     transform: scale(1.1);
+  }
+
+  .form-control {
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.25);
+  }
+
+  .input-time {
+    border-radius: 0.4rem;
+    padding: 0.4em;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.25);
+    border: none;
+  }
+
+  .input-time:focus {
+    outline: none;
   }
   </style>
