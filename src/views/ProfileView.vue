@@ -1,31 +1,23 @@
 <template>
-  <div class="profile-container">
-    <router-link to="/home" class="text-decoration-none text-black">
-      <i
-        class="row d-flex justify-content-end w-100 bi bi-box-arrow-in-right fs-4 mt-2 fw-bold"
-      ></i>
+  <div class="profile-container" ref="profileContainer">
+    <router-link to="/home" class="home-link">
+      <i class="bi bi-house-door-fill"></i>
+      <span>Home</span>
     </router-link>
-    <div class="container d-flex vh-100">
+    <div class="container d-flex justify-content-center align-items-center vh-100">
       <div class="row pb-5 pe-5 gap-5 w-100">
-        <div class="profile col-2 text-center">
-          <div class="profile-title text-white p-3">
-            <h2>Profile</h2>
-          </div>
-        </div>
-        <div class="content col p-3">
-          <div
-            class="content-container d-flex justify-content-center align-items-center flex-column"
-            id="contentContainer"
-          >
+        <div class="profile-content col" ref="profileContent">
+          <div class="content-container d-flex justify-content-center align-items-center flex-column" id="contentContainer">
             <div class="image-container img-fluid mb-5">
               <img
                 src="https://img.freepik.com/free-photo/3d-rendering-cartoon-character-with-eyeglasses-jacket_1142-51310.jpg"
                 alt="User Profile Image"
                 class="profile-image rounded-circle shadow"
+                ref="profileImage"
               />
             </div>
             <div class="form-data">
-              <form>
+              <form class="text-black">
                 <div class="mb-3">
                   <label for="name" class="form-label">Name</label>
                   <input
@@ -54,10 +46,7 @@
                   />
                 </div>
               </form>
-              <div
-                id="buttonContainer"
-                class="d-flex justify-content-end gap-2"
-              ></div>
+              <div id="buttonContainer"></div>
             </div>
           </div>
         </div>
@@ -68,6 +57,7 @@
 
 <script>
 import axios from "axios";
+import gsap from "gsap";
 
 export default {
   name: "ProfileView",
@@ -145,46 +135,152 @@ export default {
     nik.addEventListener("click", () => {
       allButton();
     });
+
+    gsap.from(this.$refs.profileContainer, {
+      opacity: 0,
+      y: -100,
+      duration: 1.5,
+      ease: "power4.out",
+    });
+
+    gsap.from(this.$refs.profileContent, {
+      opacity: 0,
+      x: 200,
+      duration: 1.5,
+      delay: 0.7,
+      ease: "power4.out",
+    });
+
+    gsap.from(this.$refs.profileImage, {
+      scale: 0.8,
+      opacity: 0,
+      duration: 1,
+      ease: "back.out(1.7)",
+    });
   },
 };
 </script>
 
-<style>
+<style scoped>
 .profile-container {
   background-image: url("https://img.freepik.com/premium-photo/abstract-white-background-with-smooth-lines_476363-1302.jpg");
   background-size: cover;
   width: 100%;
   height: 100vh;
 }
-.profile {
+
+.home-link {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #dc3545;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: transform 0.3s, color 0.3s;
+}
+
+.home-link i {
+  font-size: 1rem;
+}
+
+.home-link:hover {
+  transform: scale(1.1);
+  color: #a71d2a;
+}
+
+.profile-content {
   border-radius: 0.5rem;
   box-shadow: rgba(17, 12, 46, 0.15) 0px 48px 100px 0px;
-  background-color: white;
-  background-image: url("https://img.freepik.com/free-photo/digital-art-moon-dolphin-wallpaper_23-2150918931.jpg");
   background-size: cover;
   background-position: center;
 }
 
-.content {
-  border-radius: 0.5rem;
-  box-shadow: rgba(17, 12, 46, 0.15) 0px 48px 100px 0px;
-  background-color: white;
-}
-
 .content-container {
   height: 100%;
+  padding: 2rem;
 }
 
 .image-container {
   width: 140px;
-  height: 100px;
+  height: 140px;
   display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
 .image-container img {
   width: 100%;
-  cursor: pointer;
   height: 100%;
   object-fit: cover;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+}
+
+.form-data {
+  width: 100%;
+}
+
+.form-label {
+  font-weight: bold;
+}
+
+input.form-control {
+  border-radius: 0.5rem;
+}
+
+#buttonContainer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  width: 100%;
+}
+
+button {
+  border-radius: 0.3rem;
+}
+
+button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+
+@media (max-width: 768px) {
+  .home-link {
+    font-size: 1.5rem;
+    top: 10px;
+    left: 10px;
+  }
+
+  .home-link i {
+    font-size: 1.2rem;
+  }
+
+  .content-container {
+    padding: 1rem;
+  }
+
+  .profile-content {
+    width: 100%;
+  }
+}
+
+@media (max-width: 576px) {
+  .home-link {
+    font-size: 1.2rem;
+    top: 5px;
+    left: 5px;
+  }
+
+  .home-link i {
+    font-size: 1rem;
+  }
 }
 </style>
