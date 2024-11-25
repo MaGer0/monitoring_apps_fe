@@ -11,11 +11,7 @@
           <button class="btn btn-primary">
             <i class="bi bi-box-arrow-in-right"></i> Export
           </button>
-          <button
-            class="btn btn-warning"
-            id="modalCreate"
-            @click="showModal = true"
-          >
+          <button class="btn btn-warning" @click="openCreateModal(id)">
             <i class="bi bi-plus-square"></i> Create
           </button>
         </div>
@@ -24,16 +20,19 @@
       <CreateModal
         v-if="showModal"
         :modals="modal"
-        :submit="setSubmitData"
-        @close="showModal = false"
+        @submit="handleSubmit"
+        @close="closeCreateModal"
+      />
+
+      <DetailModal
+        v-if="showDetail"
+        :detailMonitoring="selectedMonitoringId"
+        @close="closeDetailModal"
       />
 
       <div class="content-container">
         <div class="table-responsive d-none d-md-block">
-          <table
-            class="table table-borderless table-hover shadow-sm"
-            ref="dashboardTable"
-          >
+          <table class="table table-borderless table-hover shadow-sm" ref="tableRows">
             <thead class="opacity-50">
               <tr class="opacity-100 table-light text">
                 <th class="text-start">No</th>
@@ -48,7 +47,6 @@
               <tr
                 v-for="(data, index) in dashboardData.slice().reverse()"
                 :key="data.id"
-                ref="tableRows"
               >
                 <td class="text-start">{{ index + 1 }}</td>
                 <td class="text-start">{{ data.title }}</td>
@@ -58,7 +56,10 @@
                 <td class="text-start">
                   <div class="d-flex align-items-center">
                     <span>{{ data.end_time }}</span>
-                    <button class="btn ms-5 p-0">
+                    <button
+                      class="btn ms-5 p-0"
+                      @click="openDetailModal(data.id)"
+                    >
                       <i class="bi bi-eye fs-5"></i>
                     </button>
                   </div>
@@ -68,7 +69,7 @@
           </table>
         </div>
 
-        <!-- Mobile -->
+        <!-- Mobile View -->
         <div class="d-block d-md-none">
           <div
             v-for="(data, index) in dashboardData.slice().reverse()"
@@ -83,7 +84,7 @@
               <p class="card-text">Jam Mulai: {{ data.start_time }}</p>
               <p class="card-text">
                 <span>Jam Selesai: {{ data.end_time }}</span>
-                <button class="btn ms-3 p-0">
+                <button @click="openDetailModal(data.id)" class="btn ms-3 p-0">
                   <i class="bi bi-eye fs-5"></i>
                 </button>
               </p>
@@ -96,6 +97,7 @@
 </template>
 
 <script>
+import DetailModal from "@/components/DetailModal.vue";
 import CreateModal from "@/components/CreateModal.vue";
 import AppSidebar from "@/components/AppSidebar.vue";
 import gsap from "gsap";
@@ -106,12 +108,16 @@ export default {
   components: {
     AppSidebar,
     CreateModal,
+    DetailModal,
   },
   data() {
     return {
-      dashboardData: [],
-      modal: {},
       showModal: false,
+      showDetail: false,
+      modal: {},
+      selectedMonitoringId: null,
+      dashboardData: [],
+      // idMonitorings: null,
     };
   },
   mounted() {
@@ -123,6 +129,7 @@ export default {
         },
       })
       .then((response) => {
+        console.log(response.data.data);
         this.dashboardData = response.data.data;
         this.animateTableRows();
       })
@@ -146,25 +153,55 @@ export default {
     });
   },
   methods: {
+    openCreateModal() {
+      // this.idMonitorings = id;
+      this.showModal = true;
+    },
+    closeCreateModal() {
+      this.showModal = false;
+    },
+    handleSubmit(data) {
+      this.dashboardData.push(data)
+      this.fetchDashboardData()
+      this.closeCreateModal();
+    },
+    openDetailModal(monitoringId) {
+      this.selectedMonitoringId = monitoringId;
+      this.showDetail = true;
+    },
+    fetchDashboardData() {
+      const token = "Bearer " + localStorage.getItem("token");
+      axios
+        .get("http://127.0.0.1:8000/api/monitorings", {
+          headers: {
+            Authorization: token,
+          },
+        })
+        .then((response) => {
+          this.dashboardData = response.data.data;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+    closeDetailModal() {
+      this.showDetail = false;
+      this.selectedMonitoringId = null;
+    },
     animateTableRows() {
-      const rows = this.$refs.tableRows;
-      gsap.from(rows, {
+      gsap.from(this.$refs.tableRows, {
         opacity: 0,
-        y: 30,
-        stagger: 0.15,
-        delay: 1.1,
-        duration: 0.8,
+        y: 50,
+        duration: 0.5,
+        stagger: 0.1,
         ease: "power2.out",
       });
-    },
-    setSubmitData(data) {
-      this.dashboardData.push(data);
     },
   },
 };
 </script>
 
-<style>
+<style scoped>
 .dashboard-container {
   background-image: url("https://img.freepik.com/free-vector/gradient-white-monochrome-background_23-2149017048.jpg");
   background-size: cover;

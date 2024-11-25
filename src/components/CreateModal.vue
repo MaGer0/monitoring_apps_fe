@@ -97,7 +97,7 @@ import "vue3-treeselect/dist/vue3-treeselect.css";
 
 export default {
   name: "CreateModals",
-  props: ["modals", "detailModals"],
+  props: ["modals" /*"idMonitoring"*/],
   components: {
     Treeselect,
   },
@@ -109,7 +109,7 @@ export default {
   },
   mounted() {
     this.animateModalIn();
-    this.getDetailMonitoring();
+    this.getDetailMonitoring(/*this.idMonitoring*/);
   },
   methods: {
     animateModalIn() {
@@ -136,43 +136,35 @@ export default {
     },
     submitForm() {
       const token = "Bearer " + localStorage.getItem("token");
-      const dataToSubmit = {
-        ...this.modals,
-        detailData: this.value,
-      };
+      const monitoringData = { ...this.modals };
+
       axios
-        .post("http://127.0.0.1:8000/api/monitorings", dataToSubmit, {
+        .post("http://127.0.0.1:8000/api/monitorings", monitoringData, {
           headers: {
             Authorization: token,
             Accept: "application/json",
           },
         })
+        .then((response) => {
+          const monitoringId = response.data.id;
+
+          axios.post(
+            "http://127.0.0.1:8000/api/notpresents/" + monitoringId,
+            monitoringData,
+            {
+              headers: {
+                Authorization: token,
+                Accept: "application/json",
+              },
+            }
+          );
+        })
         .then(() => {
-          this.$emit("submit", dataToSubmit);
+          this.$emit("submit");
         })
         .catch((error) => {
-          console.log(error.response);
           console.log(error.response.data);
         });
-
-      axios
-        .post(
-          "http://127.0.0.1:8000/api/notpresents/" + this.modals.id,
-          this.detailModals,
-          {
-            headers: {
-              Authorization: token,
-            },
-          }
-        )
-        .then(() => {
-          this.$emit("send", this.detailModals);
-        })
-        .catch((error) => {
-          console.log(error.response);
-          console.log(error.response.data);
-        });
-
       this.closeModal();
     },
     cancelModal() {
@@ -180,20 +172,33 @@ export default {
     },
     getDetailMonitoring() {
       const token = "Bearer " + localStorage.getItem("token");
+      const monitoringData = { ...this.modals}
       axios
-        .get("http://127.0.0.1:8000/api/notpresents", {
+        .get("http://127.0.0.1:8000/api/students", {
           headers: {
             Authorization: token,
           },
         })
         .then((response) => {
-          this.options = response.data.data.map((item) => ({
-            id: item.monitoring_id,
-            label: `${item.name}`,
-            children: item.detailData.map((detail) => ({
-              id: detail.id,
-              label: `${detail.keterangan}`
-            }))
+          this.options = response.data.data.map((student) => ({
+            id: student.nisn,
+            label: student.name,
+            children: [
+              {
+                id: student.nisn + " sakit",
+                label: `Sakit ${keterangan}`,
+                customLabel: `${student.name} | ${keterangan}`,
+                
+              },
+              {
+                id: student.nisn + " izin",
+                label: "Izin",
+              },
+              {
+                id: student.nisn + " alpha",
+                label: "Alpha",
+              },
+            ],
           }));
         })
         .catch((error) => {
