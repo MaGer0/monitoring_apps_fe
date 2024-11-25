@@ -1,6 +1,6 @@
 <template>
   <div class="modal-overlay" @click.self="closeDetail">
-    <div class="modal-container">
+    <div class="modal-container" ref="modalContainer">
       <div
         class="modal-header bg-primary text-white d-flex justify-content-between p-3"
       >
@@ -10,7 +10,10 @@
         </button>
       </div>
       <div class="modal-body p-3">
-        <div v-if="mainData">
+        <div v-if="isLoading">
+          <p class="text-muted">Loading...</p>
+        </div>
+        <div v-if="!isLoading && mainData">
           <div class="mb-3">
             <label class="form-label">Judul :</label>
             <p class="form-control-static">{{ mainData.title }}</p>
@@ -32,7 +35,7 @@
             <p class="form-control-static">{{ mainData.end_time }}</p>
           </div>
         </div>
-        <div v-if="detailData.length > 0">
+        <div v-if="!isLoading && detailData.length > 0">
           <label class="form-label">Murid Tidak Masuk:</label>
           <ul>
             <li v-for="(detail, index) in detailData" :key="index">
@@ -40,7 +43,7 @@
             </li>
           </ul>
         </div>
-        <div v-else>
+        <div v-else-if="!isLoading">
           <p class="text-muted">Tidak ada detail murid untuk monitoring ini.</p>
         </div>
       </div>
@@ -50,6 +53,7 @@
 
 <script>
 import axios from "axios";
+import gsap from "gsap";
 
 export default {
   name: "DetailModal",
@@ -58,44 +62,60 @@ export default {
     return {
       mainData: null,
       detailData: [],
+      isLoading: true,
     };
   },
   mounted() {
     this.getDetailData(this.detailMonitoring);
+    this.animateModalIn();
   },
   methods: {
     getDetailData(id) {
       const token = "Bearer " + localStorage.getItem("token");
+      const headers = { Authorization: token };
 
-      axios
-        .get(`http://127.0.0.1:8000/api/monitorings/${id}`, {
-          headers: {
-            Authorization: token,
-          },
-        })
-        .then((response) => {
-          this.mainData = response.data.data;
+      this.isLoading = true;
+      Promise.all([
+        axios.get(`http://127.0.0.1:8000/api/monitorings/${id}`, { headers }),
+        axios.get(`http://127.0.0.1:8000/api/notpresents/${id}`, { headers }),
+      ])
+        .then(([mainResponse, detailResponse]) => {
+          this.mainData = mainResponse.data.data;
+          this.detailData = detailResponse.data.data;
         })
         .catch((error) => {
           console.error(error);
-        });
-
-      axios
-        .get(`http://127.0.0.1:8000/api/notpresents/${id}`, {
-          headers: {
-            Authorization: token,
-          },
         })
-        .then((response) => {
-          this.detailData = response.data.data;
-        })
-        .catch((error) => {
-          console.error(error);
+        .finally(() => {
+          this.isLoading = false;
         });
+    },
+    animateModalIn() {
+      gsap.from(this.$refs.modalContainer, {
+        duration: 0.5,
+        scale: 0,
+        opacity: 0,
+        ease: "back.out(1.7)",
+      });
+    },
+    animateModalOut() {
+      gsap.to(this.$refs.modalContainer, {
+        duration: 0.5,
+        scale: 0,
+        opacity: 0,
+        ease: "back.in(1.7)",
+        onComplete: () => {
+          this.$emit("close");
+        },
+      });
     },
     closeDetail() {
-      this.$emit("close");
+      this.animateModalOut();
     },
+  },
+  mounted() {
+    this.getDetailData(this.detailMonitoring);
+    this.animateModalIn();
   },
 };
 </script>
