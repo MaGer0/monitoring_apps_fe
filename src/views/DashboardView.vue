@@ -1,6 +1,6 @@
 <template>
   <AppSidebar />
-  <div class="dashboard-container w-100">
+  <div class="dashboard-container w-100" @click.self="toggleDropdown(null)">
     <div class="container p-3" ref="dashboard">
       <div
         class="header d-flex justify-content-between align-items-center mb-5 gap-2"
@@ -19,7 +19,6 @@
 
       <CreateModal
         v-if="showModal"
-        :modals="modal"
         @submit="handleSubmit"
         @close="closeCreateModal"
       />
@@ -32,7 +31,10 @@
 
       <div class="content-container">
         <div class="table-responsive d-none d-md-block">
-          <table class="table table-borderless table-hover shadow-sm" ref="tableRows">
+          <table
+            class="table table-borderless table-hover shadow-sm"
+            ref="tableRows"
+          >
             <thead class="opacity-50">
               <tr class="opacity-100 table-light text">
                 <th class="text-start">No</th>
@@ -48,7 +50,7 @@
                 v-for="(data, index) in dashboardData.slice().reverse()"
                 :key="data.id"
               >
-                <td class="text-start">{{ index + 1 }}</td>
+                <td class="text-center">{{ index + 1 }}</td>
                 <td class="text-start">{{ data.title }}</td>
                 <td class="text-start">{{ data.description }}</td>
                 <td class="text-start">{{ data.date }}</td>
@@ -57,11 +59,35 @@
                   <div class="d-flex align-items-center">
                     <span>{{ data.end_time }}</span>
                     <button
-                      class="btn ms-5 p-0"
-                      @click="openDetailModal(data.id)"
+                      class="btn border-0 ms-5 p-0"
+                      @click="toggleDropdown(data.id)"
                     >
-                      <i class="bi bi-eye fs-5"></i>
+                      <i class="bi bi-three-dots"></i>
                     </button>
+                    <div
+                      @click.self="toggleDropdown(data.id)"
+                      v-if="activeDropdownId === data.id"
+                      class="dropdown-menu show horizontal-dropdown"
+                    >
+                      <li>
+                        <button
+                          class="btn p-2 w-100"
+                          @click="openDetailModal(data.id)"
+                        >
+                          <i class="bi bi-eye fs-5"></i>
+                        </button>
+                      </li>
+                      <li>
+                        <button class="btn p-2 w-100">
+                          <i class="bi bi-pencil fs-5"></i>
+                        </button>
+                      </li>
+                      <li>
+                        <button class="btn p-2 w-100">
+                          <i class="bi bi-trash fs-5"></i>
+                        </button>
+                      </li>
+                    </div>
                   </div>
                 </td>
               </tr>
@@ -86,6 +112,9 @@
                 <span>Jam Selesai: {{ data.end_time }}</span>
                 <button @click="openDetailModal(data.id)" class="btn ms-3 p-0">
                   <i class="bi bi-eye fs-5"></i>
+                </button>
+                <button class="btn ms-3 p-0">
+                  <i class="bi bi-three-dots"></i>
                 </button>
               </p>
             </div>
@@ -114,10 +143,9 @@ export default {
     return {
       showModal: false,
       showDetail: false,
-      modal: {},
       selectedMonitoringId: null,
       dashboardData: [],
-      // idMonitorings: null,
+      activeDropdownId: null,
     };
   },
   mounted() {
@@ -129,7 +157,6 @@ export default {
         },
       })
       .then((response) => {
-        console.log(response.data.data);
         this.dashboardData = response.data.data;
         this.animateTableRows();
       })
@@ -153,16 +180,24 @@ export default {
     });
   },
   methods: {
+    toggleDropdown(id) {
+      if (this.activeDropdownId === id) {
+        this.activeDropdownId = null;
+      } else {
+        this.activeDropdownId = id;
+      }
+    },
     openCreateModal() {
-      // this.idMonitorings = id;
       this.showModal = true;
     },
     closeCreateModal() {
       this.showModal = false;
+      this.modal = {};
+      this.detailMonitoring = [];
     },
     handleSubmit(data) {
-      this.dashboardData.push(data)
-      this.fetchDashboardData()
+      this.dashboardData.push(data);
+      this.fetchDashboardData();
       this.closeCreateModal();
     },
     openDetailModal(monitoringId) {
@@ -219,27 +254,61 @@ export default {
   z-index: -1;
 }
 
+.container::-webkit-scrollbar {
+  width: 13px;
+}
+
+.container::-webkit-scrollbar-thumb {
+  background-color: #6c757d;
+  border-radius: 5px;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+}
+
+.container::-webkit-scrollbar-track {
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+}
+
+.content-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.content-container::-webkit-scrollbar-thumb {
+  background-color: #6c757d;
+  border-radius: 4px;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+}
+
+.content-container::-webkit-scrollbar-track {
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+}
+
+.container {
+  scrollbar-color: rgba(0, 0, 0, 0.1);
+  max-height: 100vh;
+  overflow-y: auto;
+}
+
 .content-container {
   overflow-x: auto;
   word-wrap: break-word;
 }
 
 .table {
-  table-layout: fixed;
   width: 100%;
+  border-collapse: collapse;
 }
 
 th,
 td {
   word-wrap: break-word;
-  white-space: normal;
-  overflow: auto;
+  white-space: nowrap;
   text-overflow: ellipsis;
 }
 
 td:last-child {
   text-align: center;
-  word-wrap: break-word;
 }
 
 th:first-child,
@@ -249,6 +318,8 @@ td:first-child {
 
 .table-responsive {
   overflow-x: auto;
+  overflow-y: visible;
+  position: relative;
 }
 
 .card {
@@ -264,6 +335,38 @@ td:first-child {
 .card-text {
   margin-bottom: 0.5rem;
   font-size: 0.95rem;
+}
+
+.dropdown-menu.show {
+  display: block;
+  position: absolute;
+  z-index: 1000;
+}
+
+.horizontal-dropdown {
+  display: flex !important;
+  flex-direction: row;
+  padding: 0.5rem;
+  gap: 0.5rem;
+}
+
+.horizontal-dropdown li {
+  list-style: none;
+}
+
+.horizontal-dropdown button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.horizontal-dropdown button:hover {
+  background-color: rgba(0, 0, 0, 0.1);
 }
 
 @media (max-width: 768px) {
