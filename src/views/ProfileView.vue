@@ -4,7 +4,7 @@
       <i class="bi bi-house-door-fill"></i>
       <span>Home</span>
     </router-link>
-    <div class="container d-flex justify-content-center align-items-center vh-100">
+    <div class="container d-flex justify-content-center align-items-center">
       <div class="row pb-5 pe-5 gap-5 w-100">
         <div class="profile-content col" ref="profileContent">
           <div class="content-container d-flex justify-content-center align-items-center flex-column" id="contentContainer">
@@ -166,6 +166,11 @@ export default {
   background-image: url("https://img.freepik.com/premium-photo/abstract-white-background-with-smooth-lines_476363-1302.jpg");
   background-size: cover;
   width: 100%;
+  height: 100vh;
+}
+.container {
+  width: 500px;
+  margin: 0 auto;
   height: 100vh;
 }
 
