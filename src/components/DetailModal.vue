@@ -33,10 +33,10 @@
           </div>
         </div>
         <div v-if="detailData.length > 0">
-          <label class="form-label">Detail Keterangan Murid:</label>
+          <label class="form-label">Murid Tidak Masuk:</label>
           <ul>
             <li v-for="(detail, index) in detailData" :key="index">
-              {{ detail.keterangan }}
+              {{ detail.student.name }} - {{ detail.keterangan }}
             </li>
           </ul>
         </div>
@@ -57,6 +57,7 @@ export default {
   data() {
     return {
       mainData: null,
+      detailData: [],
     };
   },
   mounted() {
@@ -86,7 +87,7 @@ export default {
           },
         })
         .then((response) => {
-          this.mainData = response.data.data;
+          this.detailData = response.data.data;
         })
         .catch((error) => {
           console.error(error);
