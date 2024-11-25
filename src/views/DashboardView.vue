@@ -178,8 +178,19 @@ export default {
       delay: 0.8,
       ease: "power2.out",
     });
+    document.addEventListener("click", this.closeDropdown);
   },
   methods: {
+    closeDropdown(e) {
+      const dropdown = document.querySelector(".dropdown-menu");
+      if (
+        dropdown &&
+        !dropdown.contains(e.target) &&
+        !e.target.closest(".btn")
+      ) {
+        this.activeDropdownId = null;
+      }
+    },
     toggleDropdown(id) {
       if (this.activeDropdownId === id) {
         this.activeDropdownId = null;
@@ -244,6 +255,7 @@ export default {
   background-position: center;
   padding-bottom: 50px;
   position: relative;
+  height: 100vh;
 }
 
 .dashboard-container::before {
@@ -286,7 +298,7 @@ export default {
 
 .container {
   scrollbar-color: rgba(0, 0, 0, 0.1);
-  max-height: 100vh;
+  height: 100vh;
   overflow-y: auto;
 }
 
