@@ -17,7 +17,7 @@
               type="text"
               id="judul"
               class="form-control"
-              v-model="modals.title"
+              v-model="mainData.title"
               placeholder="Masukkan Judul"
             />
           </div>
@@ -26,7 +26,7 @@
             <textarea
               id="deskripsi"
               class="form-control"
-              v-model="modals.description"
+              v-model="mainData.description"
               rows="4"
               placeholder="Masukkan Deskripsi"
             ></textarea>
@@ -37,7 +37,7 @@
               type="date"
               id="tanggal"
               class="form-control"
-              v-model="modals.date"
+              v-model="mainData.date"
             />
           </div>
           <div class="mb-3 d-flex flex-column">
@@ -46,7 +46,7 @@
               type="time"
               name="jam-mulai"
               id="jamMulai"
-              v-model="modals.start_time"
+              v-model="mainData.start_time"
               class="input-time"
             />
           </div>
@@ -56,20 +56,25 @@
               type="time"
               name="jam-selesai"
               id="jamSelesai"
-              v-model="modals.end_time"
+              v-model="mainData.end_time"
               class="input-time"
             />
           </div>
           <div class="mb-3">
             <label for="detail" class="form-label">Keterangan Murid :</label>
             <treeselect
-              v-model="value"
               :options="options"
               :clearable="true"
               :searchable="true"
               :multiple="true"
+              :value="value"
+              v-model="detailDataModel"
               class="treeselect"
-            ></treeselect>
+            >
+              <template #value-label="{ node }">
+                <div>{{ node.raw.customLabel }}</div>
+              </template>
+            </treeselect>
           </div>
           <div class="modal-footer d-flex justify-content-end gap-2">
             <button
@@ -97,7 +102,6 @@ import "vue3-treeselect/dist/vue3-treeselect.css";
 
 export default {
   name: "CreateModals",
-  props: ["modals" /*"idMonitoring"*/],
   components: {
     Treeselect,
   },
@@ -105,11 +109,14 @@ export default {
     return {
       value: null,
       options: [],
+      detailData: [],
+      detailDataModel: null,
+      mainData: {},
     };
   },
   mounted() {
     this.animateModalIn();
-    this.getDetailMonitoring(/*this.idMonitoring*/);
+    this.getDetailMonitoring();
   },
   methods: {
     animateModalIn() {
@@ -136,21 +143,24 @@ export default {
     },
     submitForm() {
       const token = "Bearer " + localStorage.getItem("token");
-      const monitoringData = { ...this.modals };
+      this.detailData = this.detailDataModel.map((item) => {
+        const [students_nisn, keterangan] = item.split(" ");
+        return { students_nisn, keterangan };
+      });
 
       axios
-        .post("http://127.0.0.1:8000/api/monitorings", monitoringData, {
+        .post("http://127.0.0.1:8000/api/monitorings", this.mainData, {
           headers: {
             Authorization: token,
             Accept: "application/json",
           },
         })
         .then((response) => {
-          const monitoringId = response.data.id;
+          const monitoringId = response.data.data.id;
 
           axios.post(
             "http://127.0.0.1:8000/api/notpresents/" + monitoringId,
-            monitoringData,
+            this.detailData,
             {
               headers: {
                 Authorization: token,
@@ -172,7 +182,6 @@ export default {
     },
     getDetailMonitoring() {
       const token = "Bearer " + localStorage.getItem("token");
-      const monitoringData = { ...this.modals}
       axios
         .get("http://127.0.0.1:8000/api/students", {
           headers: {
@@ -185,18 +194,19 @@ export default {
             label: student.name,
             children: [
               {
-                id: student.nisn + " sakit",
-                label: `Sakit ${keterangan}`,
-                customLabel: `${student.name} | ${keterangan}`,
-                
+                id: student.nisn + " Sakit",
+                label: `Sakit`,
+                customLabel: `${student.name} - Sakit`,
               },
               {
-                id: student.nisn + " izin",
+                id: student.nisn + " Izin",
                 label: "Izin",
+                customLabel: `${student.name} - Izin`,
               },
               {
-                id: student.nisn + " alpha",
+                id: student.nisn + " Alpha",
                 label: "Alpha",
+                customLabel: `${student.name} - Alpha`,
               },
             ],
           }));
