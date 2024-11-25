@@ -37,7 +37,7 @@
           >
             <thead class="opacity-50">
               <tr class="opacity-100 table-light text">
-                <th class="text-start">No</th>
+                <th class="text-center">No</th>
                 <th class="text-start">Judul</th>
                 <th class="text-start">Deskripsi</th>
                 <th class="text-start">Date</th>
@@ -108,15 +108,29 @@
               <p class="card-text">Description: {{ data.description }}</p>
               <p class="card-text">Date: {{ data.date }}</p>
               <p class="card-text">Jam Mulai: {{ data.start_time }}</p>
-              <p class="card-text">
+              <div class="card-text">
                 <span>Jam Selesai: {{ data.end_time }}</span>
-                <button @click="openDetailModal(data.id)" class="btn ms-3 p-0">
-                  <i class="bi bi-eye fs-5"></i>
+                <button @click="toggleDropdown(data.id)" class="btn ms-3 p-0">
+                  <i class="bi bi bi-three-dots"></i>
                 </button>
-                <button class="btn ms-3 p-0">
-                  <i class="bi bi-three-dots"></i>
-                </button>
-              </p>
+                <div v-if="activeDropdownId === data.id" class="dropdown-menu show vertical-dropdown">
+                  <li>
+                    <button class="btn p-2 w-100">
+                      <i class="bi bi-eye fs-5"></i>
+                    </button>
+                  </li>
+                  <li>
+                    <button class="btn p-2 w-100">
+                      <i class="bi bi-pencil fs-5"></i>
+                    </button>
+                  </li>
+                  <li>
+                    <button class="btn p-2 w-100">
+                      <i class="bi bi-trash fs-5"></i>
+                    </button>
+                  </li>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -357,7 +371,6 @@ td:first-child {
 
 .horizontal-dropdown {
   display: flex !important;
-  flex-direction: row;
   padding: 0.5rem;
   gap: 0.5rem;
 }
@@ -380,6 +393,40 @@ td:first-child {
 .horizontal-dropdown button:hover {
   background-color: rgba(0, 0, 0, 0.1);
 }
+
+.vertical-dropdown {
+  display: flex !important;
+  position: relative;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  background-color: #fff;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.vertical-dropdown li {
+  list-style: none;
+}
+
+.vertical-dropdown button {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 4px;
+  width: 100%;
+  text-align: left;
+  transition: background-color 0.2s ease;
+}
+
+.vertical-dropdown button:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
 
 @media (max-width: 768px) {
   .table-responsive {
