@@ -10,29 +10,38 @@
         </button>
       </div>
       <div class="modal-body p-3">
-        <div class="mb-3">
-          <label for="judul" class="form-label">Judul :</label>
-          <p class="form-control-static">{{ mainData.title }}</p>
+        <div v-if="mainData">
+          <div class="mb-3">
+            <label class="form-label">Judul :</label>
+            <p class="form-control-static">{{ mainData.title }}</p>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Deskripsi :</label>
+            <p class="form-control-static">{{ mainData.description }}</p>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Tanggal :</label>
+            <p class="form-control-static">{{ mainData.date }}</p>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Jam Mulai :</label>
+            <p class="form-control-static">{{ mainData.start_time }}</p>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Jam Selesai :</label>
+            <p class="form-control-static">{{ mainData.end_time }}</p>
+          </div>
         </div>
-        <div class="mb-3">
-          <label for="deskripsi" class="form-label">Deskripsi :</label>
-          <p class="form-control-static">{{ mainData.description }}</p>
+        <div v-if="detailData.length > 0">
+          <label class="form-label">Detail Keterangan Murid:</label>
+          <ul>
+            <li v-for="(detail, index) in detailData" :key="index">
+              {{ detail.keterangan }}
+            </li>
+          </ul>
         </div>
-        <div class="mb-3">
-          <label for="tanggal" class="form-label">Tanggal :</label>
-          <p class="form-control-static">{{ mainData.date }}</p>
-        </div>
-        <div class="mb-3">
-          <label for="jam-mulai" class="form-label">Jam Mulai :</label>
-          <p class="form-control-static">{{ mainData.start_time }}</p>
-        </div>
-        <div class="mb-3">
-          <label for="jam-selesai" class="form-label">Jam Selesai :</label>
-          <p class="form-control-static">{{ mainData.end_time }}</p>
-        </div>
-        <div class="mb-3">
-          <label for="keterangan" class="form-label">Keterangan :</label>
-          <p class="form-control-static">{{ detailData.keterangan }}</p>
+        <div v-else>
+          <p class="text-muted">Tidak ada detail murid untuk monitoring ini.</p>
         </div>
       </div>
     </div>
@@ -44,37 +53,45 @@ import axios from "axios";
 
 export default {
   name: "DetailModal",
-  props: ["mainData", "detailData"],
+  props: ["detailMonitoring"],
+  data() {
+    return {
+      mainData: null,
+    };
+  },
   mounted() {
-    const token = "Bearer " + localStorage.getItem("token");
-    axios
-      .get("http://127.0.0.1:8000/api/monitorings/" + this.mainData.id, {
-        headers: {
-          Authorization: token,
-        },
-      })
-      .then(() => {
-        this.$emit("getMain", this.mainData);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-
-    axios
-      .get("http://127.0.0.1:8000/api/notpresents/" + this.detailData.id, {
-        headers: {
-          Authorization: token,
-        },
-      })
-      .then(() => {
-        this.$emit("getDetail", this.detailData);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-    this.closeDetail();
+    this.getDetailData(this.detailMonitoring);
   },
   methods: {
+    getDetailData(id) {
+      const token = "Bearer " + localStorage.getItem("token");
+
+      axios
+        .get(`http://127.0.0.1:8000/api/monitorings/${id}`, {
+          headers: {
+            Authorization: token,
+          },
+        })
+        .then((response) => {
+          this.mainData = response.data.data;
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+
+      axios
+        .get(`http://127.0.0.1:8000/api/notpresents/${id}`, {
+          headers: {
+            Authorization: token,
+          },
+        })
+        .then((response) => {
+          this.mainData = response.data.data;
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    },
     closeDetail() {
       this.$emit("close");
     },
