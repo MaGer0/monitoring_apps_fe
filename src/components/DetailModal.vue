@@ -45,11 +45,11 @@
         </div>
         <div v-if="!isLoading && detailData.length > 0">
           <label class="form-label">Murid Tidak Masuk:</label>
-          <ul>
+          <ol>
             <li v-for="(detail, index) in detailData" :key="index">
               {{ detail.student.name }} - {{ detail.keterangan }}
             </li>
-          </ul>
+          </ol>
         </div>
         <div v-else-if="!isLoading">
           <p class="text-muted">Tidak ada detail murid untuk monitoring ini.</p>
