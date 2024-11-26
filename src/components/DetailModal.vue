@@ -19,6 +19,14 @@
             <p class="form-control-static">{{ mainData.title }}</p>
           </div>
           <div class="mb-3">
+            <label class="form-label">Gambar :</label>
+            <img
+              :src="'http://127.0.0.1:8000/storage/images/' + mainData.image"
+              class="img-thumbnail"
+              :alt="'http://127.0.0.1:8000/storage/images/' + mainData.image"
+            />
+          </div>
+          <div class="mb-3">
             <label class="form-label">Deskripsi :</label>
             <p class="form-control-static">{{ mainData.description }}</p>
           </div>
@@ -140,7 +148,7 @@ export default {
   width: 100%;
   max-width: 500px;
   border-radius: 8px;
-  overflow: hidden;
+  overflow: auto;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
 }
 
@@ -159,5 +167,15 @@ export default {
   padding: 0.5rem;
   border-radius: 4px;
   border: 1px solid #ced4da;
+}
+
+.img-thumbnail {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  height: auto;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 </style>
