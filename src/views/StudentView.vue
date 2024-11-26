@@ -20,12 +20,20 @@
             >
               <thead class="opacity-50">
                 <tr class="opacity-100 table-light text">
-                  <th class="text-start">No</th>
+                  <th class="text-center">No</th>
                   <th class="text-start">NISN</th>
                   <th class="text-start">Nama</th>
                   <th class="text-start">Kelas</th>
                 </tr>
               </thead>
+              <tbody>
+                <tr v-for="(data, index) in dashboardData" :key="data.id">
+                  <td class="text-center">{{ index + 1 }}</td>
+                  <td class="text-start">{{ data.nisn }}</td>
+                  <td class="text-start">{{ data.name }}</td>
+                  <td class="text-start">{{ data.class }}</td>
+                </tr>
+              </tbody>
             </table>
           </div>
         </div>
@@ -92,9 +100,7 @@
         });
       },
       importData() {
-        console.log("Import button clicked!");
-        // Tambahkan logika untuk proses import di sini
-        alert("Import data feature is not implemented yet.");
+        console.log();
       },
     },
   };
@@ -122,6 +128,14 @@
     vertical-align: middle;
   }
   
+  th:first-child, td:first-child {
+    width: 50px;
+  }
+
+  th:last-child, td:last-child {
+    width: 200px;
+  }
+
   th,
   td {
     white-space: nowrap;
