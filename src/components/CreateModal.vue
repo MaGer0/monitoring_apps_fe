@@ -22,6 +22,27 @@
             />
           </div>
           <div class="mb-3">
+            <label for="image" class="form-label">Image :</label>
+            <br />
+            <input
+              v-show="!mainData.image"
+              type="file"
+              ref="fileInput"
+              class="form-control"
+              @change="setImage"
+              id="image"
+            />
+            <div v-if="mainData.image" class="d-flex flex-column">
+              <img :src="mainData.image" alt="Preview" class="img-fluid mt-3" />
+              <button
+                @click="removeImage"
+                class="btn btn-danger text-light mt-2"
+              >
+                <i class="bi bi-x"></i>
+              </button>
+            </div>
+          </div>
+          <div class="mb-3">
             <label for="deskripsi" class="form-label">Deskripsi :</label>
             <textarea
               id="deskripsi"
@@ -141,6 +162,20 @@ export default {
     closeModal() {
       this.animateModalOut();
     },
+    setImage(e) {
+      let file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => {
+          this.mainData.image = reader.result;
+        };
+      }
+    },
+    removeImage() {
+      this.mainData.image = null;
+      this.$refs.fileInput.value = null;
+    },
     submitForm() {
       const token = "Bearer " + localStorage.getItem("token");
       this.detailData = this.detailDataModel.map((item) => {
@@ -148,11 +183,23 @@ export default {
         return { students_nisn, keterangan };
       });
 
+      const dataForSubmit = new FormData();
+      dataForSubmit.append("title", this.mainData.title);
+      dataForSubmit.append("image", this.$refs.fileInput.files[0]);
+      dataForSubmit.append("description", this.mainData.description);
+      dataForSubmit.append("date", this.mainData.date);
+      dataForSubmit.append("start_time", this.mainData.start_time);
+      dataForSubmit.append("end_time", this.mainData.end_time);
+
+      // for (let [key, value] of dataForSubmit.entries()) {
+      //   console.log(key, value);
+      // }
+      
       axios
-        .post("http://127.0.0.1:8000/api/monitorings", this.mainData, {
+        .post("http://127.0.0.1:8000/api/monitorings", dataForSubmit, {
           headers: {
             Authorization: token,
-            Accept: "application/json",
+            "Content-Type": "multipart/form-data"
           },
         })
         .then((response) => {
@@ -170,12 +217,20 @@ export default {
           );
         })
         .then(() => {
+          console.log(this.detailData)
+          console.log(dataForSubmit)
           this.$emit("submit");
+          this.resetModal();
         })
         .catch((error) => {
           console.log(error.response.data);
         });
       this.closeModal();
+    },
+    resetModal() {
+      this.mainData = {};
+      this.detailData = [];
+      this.mainData.image = null;
     },
     cancelModal() {
       this.closeModal();
@@ -238,9 +293,14 @@ export default {
   background: #fff;
   width: 100%;
   max-width: 500px;
+  height: 600px;
   border-radius: 8px;
-  overflow: hidden;
+  overflow-y: auto;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+}
+
+.modal-container::-webkit-scrollbar {
+  display: none;
 }
 
 .close {
