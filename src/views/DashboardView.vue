@@ -126,7 +126,7 @@
                   class="dropdown-menu show vertical-dropdown"
                 >
                   <li>
-                    <button class="btn p-2 w-100">
+                    <button @click="openDetailModal(data.id)" class="btn p-2 w-100">
                       <i class="bi bi-eye fs-5"></i>
                     </button>
                   </li>
