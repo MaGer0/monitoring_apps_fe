@@ -105,6 +105,14 @@
             <div class="card-body">
               <h5 class="card-title">No: {{ index + 1 }}</h5>
               <p class="card-text">Title: {{ data.title }}</p>
+              <p v-if="data.image !== null" class="card-text">
+                Image:
+                <img
+                  :src="'http://127.0.0.1:8000/storage/images/' + data.image"
+                  alt=""
+                  class="img-thumbnail"
+                />
+              </p>
               <p class="card-text">Description: {{ data.description }}</p>
               <p class="card-text">Date: {{ data.date }}</p>
               <p class="card-text">Jam Mulai: {{ data.start_time }}</p>
@@ -113,7 +121,10 @@
                 <button @click="toggleDropdown(data.id)" class="btn ms-3 p-0">
                   <i class="bi bi bi-three-dots"></i>
                 </button>
-                <div v-if="activeDropdownId === data.id" class="dropdown-menu show vertical-dropdown">
+                <div
+                  v-if="activeDropdownId === data.id"
+                  class="dropdown-menu show vertical-dropdown"
+                >
                   <li>
                     <button class="btn p-2 w-100">
                       <i class="bi bi-eye fs-5"></i>
@@ -125,7 +136,9 @@
                     </button>
                   </li>
                   <li>
-                    <button class="btn p-2 w-100">
+                    <button
+                      class="btn p-2 w-100"
+                    >
                       <i class="bi bi-trash fs-5"></i>
                     </button>
                   </li>
@@ -171,6 +184,7 @@ export default {
         },
       })
       .then((response) => {
+        console.log(response.data.data);
         this.dashboardData = response.data.data;
         this.animateTableRows();
       })
@@ -427,6 +441,13 @@ td:first-child {
   background-color: rgba(0, 0, 0, 0.05);
 }
 
+.img-thumbnail {
+  height: auto;
+  object-fit: cover;
+  border-radius: 5px;
+  border: 1px solid #dee2e6;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
 
 @media (max-width: 768px) {
   .table-responsive {
