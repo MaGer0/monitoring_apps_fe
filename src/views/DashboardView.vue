@@ -231,32 +231,15 @@ export default {
     },
     closeCreateModal() {
       this.showModal = false;
-      this.modal = {};
-      this.detailMonitoring = [];
     },
     handleSubmit(data) {
       this.dashboardData.push(data);
-      this.fetchDashboardData();
+      this.animateTableRows();
       this.closeCreateModal();
     },
     openDetailModal(monitoringId) {
       this.selectedMonitoringId = monitoringId;
       this.showDetail = true;
-    },
-    fetchDashboardData() {
-      const token = "Bearer " + localStorage.getItem("token");
-      axios
-        .get("http://127.0.0.1:8000/api/monitorings", {
-          headers: {
-            Authorization: token,
-          },
-        })
-        .then((response) => {
-          this.dashboardData = response.data.data;
-        })
-        .catch((error) => {
-          console.log(error);
-        });
     },
     closeDetailModal() {
       this.showDetail = false;
