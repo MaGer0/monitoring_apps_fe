@@ -126,7 +126,10 @@
                   class="dropdown-menu show vertical-dropdown"
                 >
                   <li>
-                    <button @click="openDetailModal(data.id)" class="btn p-2 w-100">
+                    <button
+                      @click="openDetailModal(data.id)"
+                      class="btn p-2 w-100"
+                    >
                       <i class="bi bi-eye fs-5"></i>
                     </button>
                   </li>
@@ -136,9 +139,7 @@
                     </button>
                   </li>
                   <li>
-                    <button
-                      class="btn p-2 w-100"
-                    >
+                    <button class="btn p-2 w-100">
                       <i class="bi bi-trash fs-5"></i>
                     </button>
                   </li>
@@ -176,21 +177,14 @@ export default {
     };
   },
   mounted() {
-    const token = "Bearer " + localStorage.getItem("token");
-    axios
-      .get("http://127.0.0.1:8000/api/monitorings", {
-        headers: {
-          Authorization: token,
-        },
-      })
-      .then((response) => {
-        console.log(response.data.data);
-        this.dashboardData = response.data.data;
-        this.animateTableRows();
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    this.fetchData();
+    gsap.from(this.$refs.tableRows, {
+      opacity: 0,
+      y: 50,
+      duration: 0.5,
+      stagger: 0.1,
+      ease: "power2.out",
+    });
 
     gsap.from(this.$refs.dashboardHeader, {
       opacity: 0,
@@ -226,24 +220,7 @@ export default {
         this.activeDropdownId = id;
       }
     },
-    openCreateModal() {
-      this.showModal = true;
-    },
-    closeCreateModal() {
-      this.showModal = false;
-      this.modal = {};
-      this.detailMonitoring = [];
-    },
-    handleSubmit(data) {
-      this.dashboardData.push(data);
-      this.fetchDashboardData();
-      this.closeCreateModal();
-    },
-    openDetailModal(monitoringId) {
-      this.selectedMonitoringId = monitoringId;
-      this.showDetail = true;
-    },
-    fetchDashboardData() {
+    fetchData() {
       const token = "Bearer " + localStorage.getItem("token");
       axios
         .get("http://127.0.0.1:8000/api/monitorings", {
@@ -258,18 +235,24 @@ export default {
           console.log(error);
         });
     },
+    openCreateModal() {
+      this.showModal = true;
+    },
+    closeCreateModal() {
+      this.showModal = false;
+    },
+    handleSubmit(data) {
+      this.dashboardData.push(data);
+      this.closeCreateModal();
+      this.fetchData();
+    },
+    openDetailModal(monitoringId) {
+      this.selectedMonitoringId = monitoringId;
+      this.showDetail = true;
+    },
     closeDetailModal() {
       this.showDetail = false;
       this.selectedMonitoringId = null;
-    },
-    animateTableRows() {
-      gsap.from(this.$refs.tableRows, {
-        opacity: 0,
-        y: 50,
-        duration: 0.5,
-        stagger: 0.1,
-        ease: "power2.out",
-      });
     },
   },
 };
