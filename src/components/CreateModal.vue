@@ -105,8 +105,13 @@
             >
               <i class="bi bi-x"></i> Cancel
             </button>
-            <button type="submit" class="btn btn-primary" @click="submitForm">
-              <i class="bi bi-send"></i> Submit
+            <button
+              type="submit"
+              class="btn btn-primary"
+              @click="submitForm"
+              :disabled="isSubmit"
+            >
+              <i class="bi bi-send" v-if="!isSubmit"></i> Submit
             </button>
           </div>
         </div>
@@ -133,6 +138,7 @@ export default {
       detailData: [],
       detailDataModel: null,
       mainData: {},
+      isSubmit: false,
     };
   },
   mounted() {
@@ -177,6 +183,9 @@ export default {
       this.$refs.fileInput.value = null;
     },
     submitForm() {
+      if (this.isSubmit) return;
+      this.isSubmit = true;
+
       const token = "Bearer " + localStorage.getItem("token");
       this.detailData = this.detailDataModel.map((item) => {
         const [students_nisn, keterangan] = item.split(" ");
@@ -194,12 +203,12 @@ export default {
       // for (let [key, value] of dataForSubmit.entries()) {
       //   console.log(key, value);
       // }
-      
+
       axios
         .post("http://127.0.0.1:8000/api/monitorings", dataForSubmit, {
           headers: {
             Authorization: token,
-            "Content-Type": "multipart/form-data"
+            "Content-Type": "multipart/form-data",
           },
         })
         .then((response) => {
@@ -216,14 +225,15 @@ export default {
             }
           );
         })
-        .then(() => {
-          console.log(this.detailData)
-          console.log(dataForSubmit)
-          this.$emit("submit");
-          this.resetModal();
+        .then((response) => {
+          console.log(response);
+          this.$emit("submit", response);
         })
         .catch((error) => {
           console.log(error.response.data);
+        })
+        .finally(() => {
+          this.isSubmit = false;
         });
       this.closeModal();
     },
