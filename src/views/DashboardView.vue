@@ -229,6 +229,7 @@ export default {
           },
         })
         .then((response) => {
+          console.log(response.data.data);
           this.dashboardData = response.data.data;
         })
         .catch((error) => {
@@ -244,7 +245,6 @@ export default {
     handleSubmit(data) {
       this.dashboardData.push(data);
       this.closeCreateModal();
-      this.fetchData();
     },
     openDetailModal(monitoringId) {
       this.selectedMonitoringId = monitoringId;
