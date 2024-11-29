@@ -46,11 +46,10 @@
               </tr>
             </thead>
             <tbody>
-              <tr
-                v-for="(data, index) in dashboardData.slice().reverse()"
-                :key="data.id"
-              >
-                <td class="text-center">{{ index + 1 }}</td>
+              <tr v-for="(data, index) in dashboardData" :key="data.id">
+                <td class="text-center">
+                  {{ (currentPage - 1) * perPage + index + 1 }}
+                </td>
                 <td class="text-start">{{ data.title }}</td>
                 <td class="text-start">{{ data.description }}</td>
                 <td class="text-start">{{ data.date }}</td>
@@ -98,12 +97,14 @@
         <!-- Mobile View -->
         <div class="d-block d-md-none">
           <div
-            v-for="(data, index) in dashboardData.slice().reverse()"
+            v-for="(data, index) in dashboardData"
             :key="data.id"
             class="card mb-3 shadow-sm"
           >
             <div class="card-body">
-              <h5 class="card-title">No: {{ index + 1 }}</h5>
+              <h5 class="card-title">
+                No: {{ (currentPage - 1) * perPage + index + 1 }}
+              </h5>
               <p class="card-text">Title: {{ data.title }}</p>
               <p v-if="data.image !== null" class="card-text">
                 Image:
@@ -148,6 +149,13 @@
             </div>
           </div>
         </div>
+        <PagintaionComponent
+          :prevLink="links.prev"
+          :nextLink="links.next"
+          :links="paginationLinks"
+          @change-page="fetchData"
+          class="pagination"
+        />
       </div>
     </div>
   </div>
@@ -157,6 +165,7 @@
 import DetailModal from "@/components/DetailModal.vue";
 import CreateModal from "@/components/CreateModal.vue";
 import AppSidebar from "@/components/AppSidebar.vue";
+import PagintaionComponent from "@/components/PagintaionComponent.vue";
 import gsap from "gsap";
 import axios from "axios";
 
@@ -166,6 +175,7 @@ export default {
     AppSidebar,
     CreateModal,
     DetailModal,
+    PagintaionComponent,
   },
   data() {
     return {
@@ -174,6 +184,10 @@ export default {
       selectedMonitoringId: null,
       dashboardData: [],
       activeDropdownId: null,
+      links: {},
+      paginationLinks: [],
+      currentPage: null,
+      perPage: null,
     };
   },
   mounted() {
@@ -214,27 +228,30 @@ export default {
       }
     },
     toggleDropdown(id) {
-      if (this.activeDropdownId === id) {
-        this.activeDropdownId = null;
-      } else {
-        this.activeDropdownId = id;
-      }
+      this.activeDropdownId = this.activeDropdownId === id ? null : id;
     },
-    fetchData() {
-      const token = "Bearer " + localStorage.getItem("token");
-      axios
-        .get("http://127.0.0.1:8000/api/monitorings", {
+    async fetchData(url = "http://127.0.0.1:8000/api/monitorings") {
+      try {
+        const response = await axios.get(url, {
           headers: {
-            Authorization: token,
+            Authorization: "Bearer " + localStorage.getItem("token"),
           },
-        })
-        .then((response) => {
-          console.log(response.data.data);
-          this.dashboardData = response.data.data;
-        })
-        .catch((error) => {
-          console.log(error);
         });
+        const { data, links, meta } = response.data;
+
+        this.dashboardData = data;
+        this.links.prev = links.prev;
+        this.links.next = links.next;
+        this.paginationLinks = meta.links.map((link) => ({
+          label: link.label,
+          url: link.url,
+          active: link.active,
+        }));
+        this.currentPage = meta.current_page;
+        this.perPage = meta.per_page;
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
     },
     openCreateModal() {
       this.showModal = true;
@@ -267,6 +284,7 @@ export default {
   padding-bottom: 50px;
   position: relative;
   height: 100vh;
+  padding: 1.3rem;
 }
 
 .dashboard-container::before {
@@ -314,6 +332,7 @@ export default {
 }
 
 .content-container {
+  margin-top: 1rem;
   overflow-x: auto;
   word-wrap: break-word;
 }
@@ -435,6 +454,20 @@ td:first-child {
 @media (max-width: 768px) {
   .table-responsive {
     display: none;
+  }
+
+  .dashboard-container {
+    padding: 10px;
+  }
+
+  .header {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .pagination {
+    display: flex;
+    gap: 3px;
   }
 }
 
