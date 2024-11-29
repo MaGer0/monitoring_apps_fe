@@ -3,7 +3,7 @@
   <div class="dashboard-container w-100" @click.self="toggleDropdown(null)">
     <div class="container p-3" ref="dashboard">
       <div
-        class="header d-flex justify-content-between align-items-center mb-5 gap-2"
+        class="header mt-3 mx-3 d-flex justify-content-between align-items-center mb-5 gap-2"
         ref="dashboardHeader"
       >
         <h2 class="fw-bold">Dashboard</h2>
@@ -284,7 +284,6 @@ export default {
   padding-bottom: 50px;
   position: relative;
   height: 100vh;
-  padding: 1.3rem;
 }
 
 .dashboard-container::before {
@@ -332,6 +331,8 @@ export default {
 }
 
 .content-container {
+  margin-right: 1.2rem;
+  margin-left: 1.2rem;
   margin-top: 1rem;
   overflow-x: auto;
   word-wrap: break-word;
@@ -468,6 +469,11 @@ td:first-child {
   .pagination {
     display: flex;
     gap: 3px;
+  }
+
+  .content-container{
+    margin-right: 0;
+    margin-left: 0;
   }
 }
 
