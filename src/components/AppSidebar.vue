@@ -1,6 +1,16 @@
 <template>
+  <button
+    class="btn d-md-none m-2 hamburger-btn"
+    :style="hamburgerStyle"
+    @click="toggleSidebar"
+  >
+  <i class="bi" :class="showSidebar ? 'bi-x-lg' : 'bi-list'"></i>
+  </button>
   <div
-    class="col-auto col-md-3 col-xl-2 px-sm-2 px-0 sidebar position-sticky"
+    :class="[
+      'col-auto col-md-3 col-xl-2 px-sm-2 px-0 sidebar position-sticky',
+      { 'd-none d-md-block': !showSidebar },
+    ]"
     ref="sidebar"
   >
     <div
@@ -18,6 +28,18 @@
         id="menu"
         ref="menu"
       >
+        <li class="nav-item">
+          <router-link
+            class="nav-link active align-middle bg-transparent px-0"
+            active-class="fw-bold"
+            to="/home"
+            ref="homeLink"
+          >
+            <i class="fs-4 bi bi-house text-white"></i>
+            <span class="ms-1 d-none d-sm-inline text-white text"> Home</span>
+          </router-link>
+        </li>
+
         <li class="nav-item">
           <router-link
             class="nav-link active align-middle bg-transparent px-0"
@@ -91,9 +113,50 @@ export default {
   data() {
     return {
       currentUser: {},
+      showSidebar: false,
     };
   },
+  computed: {
+    hamburgerStyle() {
+      return this.showSidebar
+        ? {
+            transform: "translateX(55px)",
+          }
+        : { transform: "translateX(0)" };
+    },
+  },
   methods: {
+    fetchTeacherData() {
+      axios
+        .get("http://127.0.0.1:8000/api/teachers/@me", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        })
+        .then((response) => {
+          this.currentUser = response.data.data;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+    toggleSidebar() {
+      this.showSidebar = !this.showSidebar;
+
+      if (this.showSidebar) {
+        gsap.to(this.$refs.sidebar, {
+          x: 0,
+          duration: 1,
+          ease: "power3.out",
+        });
+      } else {
+        gsap.to(this.$refs.sidebar, {
+          x: "-100%",
+          duration: 1,
+          ease: "power3.in",
+        });
+      }
+    },
     logout() {
       axios
         .get("http://localhost:8000/api/logout", {
@@ -112,6 +175,7 @@ export default {
     },
   },
   mounted() {
+    this.fetchTeacherData();
     gsap.from(this.$refs.sidebar, {
       x: "-100%",
       duration: 1,
@@ -139,28 +203,30 @@ export default {
       duration: 0.8,
       delay: 1.5,
     });
-
-    axios
-      .get("http://127.0.0.1:8000/api/teachers/@me", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      })
-      .then((response) => {
-        this.currentUser = response.data.data;
-      })
-      .catch((error) => {
-        console.log(error);
-      })
   },
 };
 </script>
 
-<style>
+<style scoped>
 .sidebar {
   background-image: url("https://img.freepik.com/premium-photo/blue-future-technology-book-cover-background-25_769134-404.jpg");
   background-repeat: no-repeat;
   background-size: cover;
-  transform: translateX(0);
+  transition: transform 0.1s ease-out;
+}
+
+.hamburger-btn {
+  z-index: 1000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  transition: transform 0.3s ease;
+  border: none;
+}
+
+@media (min-width: 768px) {
+  .sidebar {
+    display: block;
+  }
 }
 </style>

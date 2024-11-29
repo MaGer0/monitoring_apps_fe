@@ -1,6 +1,6 @@
 <template>
   <AppSidebar/>
-  <div id="home" data-aos="fade-right" class="container d-flex justify-content-center align-items-center">
+  <div id="home" data-aos="fade-right" class="container d-flex justify-content-center align-items-center vh-100">
     <h1 data-aos="zoom-out-up" class="text-center">Welcome!</h1>
   </div>
 </template>
