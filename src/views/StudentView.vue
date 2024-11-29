@@ -34,7 +34,7 @@
             </thead>
             <tbody>
               <tr v-for="(data, index) in dashboardData" :key="data.id">
-                <td class="text-center">{{ index + 1 }}</td>
+                <td class="text-center">{{ (currentPage - 1) * perPage + index + 1 }}</td>
                 <td class="text-start">{{ data.nisn }}</td>
                 <td class="text-start">{{ data.name }}</td>
                 <td class="text-start">{{ data.class }}</td>
@@ -48,7 +48,7 @@
           <div v-for="(data, index) in dashboardData" :key="data.id">
             <div class="card mb-3 shadow-sm">
               <div class="card-body">
-                <h5 class="card-title">No: {{ index + 1 }}</h5>
+                <h5 class="card-title">No: {{ (currentPage - 1) * perPage + index + 1 }}</h5>
                 <p class="card-text">NISN: {{ data.nisn }}</p>
                 <p class="card-text">Nama: {{ data.name }}</p>
                 <p class="card-text">Kelas: {{ data.class }}</p>
@@ -56,6 +56,13 @@
             </div>
           </div>
         </div>
+        <PagintaionComponent
+          :prevLink="links.prev"
+          :nextLink="links.next"
+          :links="paginationLinks"
+          @change-page="fetchDataStudent"
+          class="pagination"
+        />
       </div>
     </div>
   </div>
@@ -63,6 +70,7 @@
 
 <script>
 import AppSidebar from "@/components/AppSidebar.vue";
+import PagintaionComponent from "@/components/PagintaionComponent.vue";
 import axios from "axios";
 import gsap from "gsap";
 
@@ -70,27 +78,27 @@ export default {
   name: "DashboardView",
   components: {
     AppSidebar,
+    PagintaionComponent,
   },
   data() {
     return {
       dashboardData: [],
+      links: {},
+      paginationLinks: [],
+      currentPage: null,
+      perPage: null,
     };
   },
   mounted() {
-    const token = "Bearer " + localStorage.getItem("token");
-    axios
-      .get("http://127.0.0.1:8000/api/students", {
-        headers: {
-          Authorization: token,
-        },
-      })
-      .then((response) => {
-        this.dashboardData = response.data.data;
-        this.animateTableRows();
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    this.fetchDataStudent();
+    gsap.from(this.$refs.tableRows, {
+      opacity: 0,
+      y: 30,
+      stagger: 0.15,
+      delay: 1.1,
+      duration: 0.8,
+      ease: "power2.out",
+    });
 
     gsap.from(this.$refs.dashboardHeader, {
       opacity: 0,
@@ -108,16 +116,28 @@ export default {
     });
   },
   methods: {
-    animateTableRows() {
-      const rows = this.$refs.tableRows;
-      gsap.from(rows, {
-        opacity: 0,
-        y: 30,
-        stagger: 0.15,
-        delay: 1.1,
-        duration: 0.8,
-        ease: "power2.out",
-      });
+    async fetchDataStudent(url = "http://127.0.0.1:8000/api/students") {
+      try {
+        const response = await axios.get(url, {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("token"),
+          },
+        });
+        const { data, links, meta } = response.data;
+
+        this.dashboardData = data;
+        this.links.prev = links.prev;
+        this.links.next = links.next;
+        this.paginationLinks = meta.links.map((link) => ({
+          label: link.label,
+          url: link.url,
+          active: link.active,
+        }));
+        this.currentPage = meta.current_page;
+        this.perPage = meta.per_page;
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
     },
     submitImport(e) {
       const file = e.target.files[0];
@@ -158,6 +178,7 @@ export default {
   background-repeat: no-repeat;
   background-position: center;
   padding-bottom: 50px;
+  padding: 1.3rem;
   position: relative;
   height: 100vh;
 }
@@ -207,6 +228,7 @@ export default {
 }
 
 .content-container {
+  margin-top: 1rem;
   overflow-x: auto;
   word-wrap: break-word;
 }
@@ -270,6 +292,20 @@ td {
 @media (max-width: 768px) {
   .table-responsive {
     display: none;
+  }
+
+  .dashboard-container {
+    padding: 10px;
+  }
+
+  .header {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .pagination {
+    display: flex;
+    gap: 3px;
   }
 }
 
