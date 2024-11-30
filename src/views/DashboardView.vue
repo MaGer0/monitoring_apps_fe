@@ -8,7 +8,10 @@
       >
         <h2 class="fw-bold">Dashboard</h2>
         <div class="d-flex gap-2">
-          <button class="btn btn-primary">
+          <button
+            class="btn btn-primary"
+            @click="$refs.exportModules.openModal"
+          >
             <i class="bi bi-box-arrow-in-right"></i> Export
           </button>
           <button class="btn btn-warning" @click="openCreateModal(id)">
@@ -16,6 +19,8 @@
           </button>
         </div>
       </div>
+      
+      <ExportModules ref="exportModules" />
 
       <CreateModal
         v-if="showModal"
@@ -165,6 +170,7 @@
 import DetailModal from "@/components/DetailModal.vue";
 import CreateModal from "@/components/CreateModal.vue";
 import AppSidebar from "@/components/AppSidebar.vue";
+import ExportModules from "@/components/ExportModules.vue";
 import PagintaionComponent from "@/components/PagintaionComponent.vue";
 import gsap from "gsap";
 import axios from "axios";
@@ -176,6 +182,7 @@ export default {
     CreateModal,
     DetailModal,
     PagintaionComponent,
+    ExportModules,
   },
   data() {
     return {
@@ -471,7 +478,7 @@ td:first-child {
     gap: 3px;
   }
 
-  .content-container{
+  .content-container {
     margin-right: 0;
     margin-left: 0;
   }
