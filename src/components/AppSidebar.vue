@@ -167,7 +167,9 @@ export default {
         })
         .then(() => {
           localStorage.removeItem("token");
-          this.$router.push({ path: "/login" });
+          setTimeout(() => {
+            this.$router.push({ path: "/login" });
+          }, 200)
         })
         .catch((error) => {
           console.log(error);
