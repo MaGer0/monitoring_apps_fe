@@ -1,16 +1,15 @@
 <template>
-  <div class="landing-page w-100 vh-100" data-aos="fade-up">
+  <div class="landing-page w-100 vh-100">
     <div class="content">
-      <h1 data-aos="fade-down">Welcome to Our Website</h1>
-      <p data-aos="fade-right">Explore our features and get the best experience.</p>
-      <button @click="goToLogin" data-aos="zoom-in">Get Started</button>
+      <h1 ref="heading">Welcome to Our Website</h1>
+      <p ref="paragraph">Explore our features and get the best experience.</p>
+      <button @click="goToLogin" ref="button">Get Started</button>
     </div>
   </div>
 </template>
 
 <script>
-import AOS from "aos";
-import "aos/dist/aos.css";
+import { gsap } from "gsap";
 
 export default {
   name: "LandingPage",
@@ -20,23 +19,40 @@ export default {
     },
   },
   mounted() {
-    AOS.init({
-      duration: 1000,
-      once: true,
+    gsap.from(this.$refs.heading, {
+      y: -100,
+      opacity: 0,
+      duration: 1,
+      ease: "power3.out",
+    });
+
+    gsap.from(this.$refs.paragraph, {
+      x: -100,
+      opacity: 0,
+      duration: 1,
+      delay: 0.3,
+      ease: "power3.out",
+    });
+
+    gsap.from(this.$refs.button, {
+      scale: 0.5,
+      opacity: 0,
+      duration: 1,
+      delay: 0.6,
+      ease: "power3.out",
     });
   },
 };
 </script>
 
-<style>
-
-html, body {
+<style scoped>
+html,
+body {
   margin: 0;
   padding: 0;
   overflow-y: hidden;
 }
 
-/* Landing page utama */
 .landing-page {
   display: flex;
   justify-content: center;
@@ -48,7 +64,6 @@ html, body {
   overflow: hidden;
 }
 
-/* Pseudo elemen untuk efek background */
 .landing-page::before {
   content: "";
   background-image: url("https://path-to-cloud-image");
@@ -62,10 +77,9 @@ html, body {
   bottom: 0;
   opacity: 0.2;
   z-index: 1;
-  pointer-events: none; /* Pastikan tidak memengaruhi interaksi */
+  pointer-events: none;
 }
 
-/* Konten */
 .content {
   text-align: center;
   color: #333;
@@ -73,28 +87,25 @@ html, body {
   padding: 0 1rem;
 }
 
-/* Judul */
 .content h1 {
   font-size: 3rem;
   color: #005b99;
   margin-bottom: 1rem;
 }
 
-/* Paragraf */
 .content p {
   font-size: 1.2rem;
   color: #555;
   margin-bottom: 2rem;
 }
 
-/* Tombol */
 button {
   padding: 0.8rem 2rem;
   font-size: 1rem;
   color: #fff;
   background-color: #005b99;
   border: none;
-  border-radius: 1rem;
+  border-radius: 0.5rem;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
@@ -103,7 +114,6 @@ button:hover {
   background-color: #007acc;
 }
 
-/* Responsif */
 @media (max-width: 768px) {
   .content h1 {
     font-size: 2.5rem;
