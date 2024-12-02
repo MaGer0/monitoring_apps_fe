@@ -20,6 +20,11 @@
               v-model="mainData.title"
               placeholder="Masukkan Judul"
             />
+            <div v-if="isSubmit">
+              <div v-if="!mainData.title">
+                <p class="text-danger">Judul Wajib Diisi!</p>
+              </div>
+            </div>
           </div>
           <div class="mb-3">
             <label for="image" class="form-label">Image :</label>
@@ -51,6 +56,11 @@
               rows="4"
               placeholder="Masukkan Deskripsi"
             ></textarea>
+            <div v-if="isSubmit">
+              <div v-if="!mainData.description">
+                <p class="text-danger">Deskripsi Wajib Diisi!</p>
+              </div>
+            </div>
           </div>
           <div class="mb-3">
             <label for="tanggal" class="form-label">Tanggal :</label>
@@ -60,6 +70,11 @@
               class="form-control"
               v-model="mainData.date"
             />
+            <div v-if="isSubmit">
+              <div v-if="!mainData.date">
+                <p class="text-danger">Tanggal Wajib Diisi!</p>
+              </div>
+            </div>
           </div>
           <div class="mb-3 d-flex flex-column">
             <label for="jam-mulai">Jam Mulai :</label>
@@ -70,6 +85,11 @@
               v-model="mainData.start_time"
               class="input-time"
             />
+            <div v-if="isSubmit">
+              <div v-if="!mainData.start_time">
+                <p class="text-danger">Jam Mulai Wajib Diisi!</p>
+              </div>
+            </div>
           </div>
           <div class="mb-3 d-flex flex-column">
             <label for="jam-selesai">Jam Selesai :</label>
@@ -80,6 +100,11 @@
               v-model="mainData.end_time"
               class="input-time"
             />
+            <div v-if="isSubmit">
+              <div v-if="!mainData.end_time">
+                <p class="text-danger">Jam Selesai Wajib Diisi!</p>
+              </div>
+            </div>
           </div>
           <div class="mb-3">
             <label for="detail" class="form-label">Keterangan Murid :</label>
@@ -89,6 +114,7 @@
               :searchable="true"
               :multiple="true"
               :value="value"
+              :clear-on-select="true"
               v-model="detailDataModel"
               class="treeselect"
             >
@@ -105,13 +131,8 @@
             >
               <i class="bi bi-x"></i> Cancel
             </button>
-            <button
-              type="submit"
-              class="btn btn-primary"
-              @click="submitForm"
-              :disabled="isSubmit"
-            >
-              <i class="bi bi-send" v-if="!isSubmit"></i> Submit
+            <button type="submit" class="btn btn-primary" @click="submitForm">
+              <i class="bi bi-send"></i> Submit
             </button>
           </div>
         </div>
@@ -125,18 +146,21 @@ import axios from "axios";
 import { gsap } from "gsap";
 import Treeselect from "vue3-treeselect";
 import "vue3-treeselect/dist/vue3-treeselect.css";
+import iziToast from "izitoast";
+import "iziToast/dist/css/iziToast.css";
 
 export default {
   name: "CreateModals",
   components: {
     Treeselect,
+    iziToast,
   },
   data() {
     return {
-      value: null,
+      value: [],
       options: [],
       detailData: [],
-      detailDataModel: null,
+      detailDataModel: [],
       mainData: {},
       isSubmit: false,
     };
@@ -183,7 +207,6 @@ export default {
       this.$refs.fileInput.value = null;
     },
     submitForm() {
-      if (this.isSubmit) return;
       this.isSubmit = true;
 
       const token = "Bearer " + localStorage.getItem("token");
@@ -194,11 +217,13 @@ export default {
 
       const dataForSubmit = new FormData();
       dataForSubmit.append("title", this.mainData.title);
-      dataForSubmit.append("image", this.$refs.fileInput.files[0]);
+      this.mainData.image && dataForSubmit.append("image", this.mainData.image);
       dataForSubmit.append("description", this.mainData.description);
-      dataForSubmit.append("date", this.mainData.date);
-      dataForSubmit.append("start_time", this.mainData.start_time);
-      dataForSubmit.append("end_time", this.mainData.end_time);
+      this.mainData.date && dataForSubmit.append("date", this.mainData.date);
+      this.mainData.start_time &&
+        dataForSubmit.append("start_time", this.mainData.start_time);
+      this.mainData.end_time &&
+        dataForSubmit.append("end_time", this.mainData.end_time);
 
       // for (let [key, value] of dataForSubmit.entries()) {
       //   console.log(key, value);
@@ -214,28 +239,34 @@ export default {
         .then((response) => {
           const monitoringId = response.data.data.id;
 
-          axios.post(
-            "http://127.0.0.1:8000/api/notpresents/" + monitoringId,
-            this.detailData,
-            {
-              headers: {
-                Authorization: token,
-                Accept: "application/json",
-              },
-            }
-          );
-        })
-        .then((response) => {
-          console.log(response);
-          this.$emit("submit", response);
+          axios
+            .post(
+              "http://127.0.0.1:8000/api/notpresents/" + monitoringId,
+              this.detailData,
+              {
+                headers: {
+                  Authorization: token,
+                  Accept: "application/json",
+                },
+              }
+            )
+            .then(() => {
+              this.$emit("kirimData");
+              iziToast.success({
+                title: "Success",
+                message: "Data Monitoring Berhasil dibuat",
+                position: "bottomRight",
+                timeout: 5000,
+                transitionIn: "fadeInRight",
+                transitionOut: "fadeOutRight",
+              });
+              this.isSubmit = false;
+              this.closeModal();
+            });
         })
         .catch((error) => {
           console.log(error.response.data);
-        })
-        .finally(() => {
-          this.isSubmit = false;
         });
-      this.closeModal();
     },
     resetModal() {
       this.mainData = {};
