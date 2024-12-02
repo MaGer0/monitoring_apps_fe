@@ -19,7 +19,23 @@
           </button>
         </div>
       </div>
-      
+
+      <div class="input-group search-container mb-5">
+        <span class="input-group-text" id="basic-addon2">
+          <button class="btn btn-sm">
+            <i class="bi bi-search"></i>
+          </button>
+        </span>
+        <input
+          type="text"
+          class="form-control form-control-sm"
+          placeholder="Cari Judul atau Deskripsi"
+          aria-label="Cari Judul atau Deskripsi"
+          aria-describedby="basic-addon2"
+          @keyup="searchValue"
+        />
+      </div>
+
       <ExportModules ref="exportModules" />
 
       <CreateModal
@@ -51,6 +67,9 @@
               </tr>
             </thead>
             <tbody>
+              <tr v-if="noData === true">
+                <td colspan="6" rowspan="6" class="text-center p-5 fw-bold fs-4">Data Not Found</td>
+              </tr>
               <tr v-for="(data, index) in dashboardData" :key="data.id">
                 <td class="text-center">
                   {{ (currentPage - 1) * perPage + index + 1 }}
@@ -101,6 +120,9 @@
 
         <!-- Mobile View -->
         <div class="d-block d-md-none">
+          <div v-if="noData === true">
+            <p colspan="6" class="text-center">Data Not Found</p>
+          </div>
           <div
             v-for="(data, index) in dashboardData"
             :key="data.id"
@@ -195,6 +217,7 @@ export default {
       paginationLinks: [],
       currentPage: null,
       perPage: null,
+      noData: false,
     };
   },
   mounted() {
@@ -224,6 +247,40 @@ export default {
     document.addEventListener("click", this.closeDropdown);
   },
   methods: {
+    searchValue(event) {
+      const token = "Bearer " + localStorage.getItem("token");
+      const search = event.target.value;
+
+      if (search.trim() === "") {
+        this.fetchData();
+        this.noData = false;
+        return;
+      }
+
+      axios
+        .get(`http://127.0.0.1:8000/api/monitorings/search/${search}`, {
+          headers: {
+            Authorization: token,
+          },
+        })
+        .then((response) => {
+          console.log(response.data.data);
+          
+          if (response.data.data.length === 0) {
+            this.noData = true;
+            this.dashboardData = [];
+            this.paginationLinks = [];
+          } else {
+            this.dashboardData = response.data.data;
+            this.paginationLinks = response.data.links;
+            this.noData = false;
+          }
+          console.log(this.noData)
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
     closeDropdown(e) {
       const dropdown = document.querySelector(".dropdown-menu");
       if (
@@ -329,6 +386,40 @@ export default {
 .content-container::-webkit-scrollbar-track {
   background-color: rgba(0, 0, 0, 0.05);
   border-radius: 4px;
+}
+
+.search-container {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  border-radius: 1.3rem;
+}
+
+.search-container:focus-within {
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.search-container input {
+  border-radius: 1.3rem;
+  box-shadow: none;
+}
+
+.search-container input:focus {
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+  border-color: transparent;
+}
+
+.input-group-text {
+  background-color: #f8f9fa;
+  border: 1px solid #ced4da;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 1.3rem;
+}
+
+.input-group-text:hover {
+  background-color: #dee2e6;
+  border-color: rgba(0, 0, 0, 0.2);
 }
 
 .container {
