@@ -40,7 +40,7 @@
 
       <CreateModal
         v-if="showModal"
-        @submit="handleSubmit"
+        @kirimData="handleSubmit"
         @close="closeCreateModal"
       />
 
@@ -68,7 +68,13 @@
             </thead>
             <tbody>
               <tr v-if="noData === true">
-                <td colspan="6" rowspan="6" class="text-center p-5 fw-bold fs-4">Data Not Found</td>
+                <td
+                  colspan="6"
+                  rowspan="6"
+                  class="text-center p-5 fw-bold fs-4"
+                >
+                  Data Not Found
+                </td>
               </tr>
               <tr v-for="(data, index) in dashboardData" :key="data.id">
                 <td class="text-center">
@@ -265,7 +271,7 @@ export default {
         })
         .then((response) => {
           console.log(response.data.data);
-          
+
           if (response.data.data.length === 0) {
             this.noData = true;
             this.dashboardData = [];
@@ -275,7 +281,7 @@ export default {
             this.paginationLinks = response.data.links;
             this.noData = false;
           }
-          console.log(this.noData)
+          console.log(this.noData);
         })
         .catch((error) => {
           console.log(error);
@@ -323,9 +329,19 @@ export default {
     closeCreateModal() {
       this.showModal = false;
     },
-    handleSubmit(data) {
-      this.dashboardData.push(data);
-      this.closeCreateModal();
+    handleSubmit() {
+      axios
+        .get("http://127.0.0.1:8000/api/monitorings", {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("token"),
+          },
+        })
+        .then((response) => {
+          this.dashboardData = response.data.data;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     },
     openDetailModal(monitoringId) {
       this.selectedMonitoringId = monitoringId;
