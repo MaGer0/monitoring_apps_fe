@@ -217,7 +217,7 @@ export default {
 
       const dataForSubmit = new FormData();
       dataForSubmit.append("title", this.mainData.title);
-      this.mainData.image && dataForSubmit.append("image", this.mainData.image);
+      this.mainData.image && dataForSubmit.append("image", this.$refs.fileInput.files[0]);
       dataForSubmit.append("description", this.mainData.description);
       this.mainData.date && dataForSubmit.append("date", this.mainData.date);
       this.mainData.start_time &&
