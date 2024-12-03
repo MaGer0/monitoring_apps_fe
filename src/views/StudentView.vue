@@ -3,18 +3,56 @@
   <div class="dashboard-container w-100">
     <div class="container p-3" ref="dashboard">
       <div
-        class="header d-flex justify-content-between align-items-center mb-5 gap-2"
+        class="header mt-3 mx-3 d-flex justify-content-between align-items-center gap-2"
         ref="dashboardHeader"
       >
         <h2 class="fw-bold">Student</h2>
-        <label for="import-file" class="btn btn-primary custom-file-label"
-          ><i class="bi bi-upload"></i> Import</label
-        >
+        <button @click="showExample = true" class="btn">
+          <label for="import-file" class="btn btn-primary custom-file-label"
+            ><i class="bi bi-upload"></i> Import</label
+          >
+        </button>
         <input
           type="file"
           class="custom-file-input"
           id="import-file"
           @change="submitImport"
+          ref="importFile"
+        />
+      </div>
+
+      <div v-if="showExample" class="example-overlay" ref="exampleOverlay">
+        <div
+          class="card-format p-3 shadow-lg"
+          style="max-width: 400px; width: 90%"
+        >
+          <div class="card-body">
+            <h5 class="card-title-format">Contoh Format</h5>
+            <img
+              src="../assets/images/contoh-format.png"
+              alt="Contoh Format"
+              class="img-fluid mb-3"
+            />
+            <button @click="hideExample" class="btn btn-secondary w-100">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="input-group search-container">
+        <span class="input-group-text" id="basic-addon2">
+          <button class="btn btn-sm">
+            <i class="bi bi-search"></i>
+          </button>
+        </span>
+        <input
+          type="text"
+          class="form-control form-control-sm"
+          placeholder="Cari Judul atau Deskripsi"
+          aria-label="Cari Judul atau Deskripsi"
+          aria-describedby="basic-addon2"
+          @keyup="searchDataStudent"
         />
       </div>
 
@@ -33,6 +71,15 @@
               </tr>
             </thead>
             <tbody>
+              <tr v-if="noDataStudent">
+                <td
+                  colspan="6"
+                  rowspan="6"
+                  class="text-center p-5 fw-bold fs-4"
+                >
+                  Data Not Found
+                </td>
+              </tr>
               <tr v-for="(data, index) in dashboardData" :key="data.id">
                 <td class="text-center">
                   {{ (currentPage - 1) * perPage + index + 1 }}
@@ -47,6 +94,9 @@
 
         <!-- Mobile -->
         <div class="d-block d-md-none">
+          <div v-if="noData === true">
+            <h1 class="text-center p-5 fw-bold fs-4">Budi</h1>
+          </div>
           <div v-for="(data, index) in dashboardData" :key="data.id">
             <div class="card mb-3 shadow-sm">
               <div class="card-body">
@@ -93,35 +143,98 @@ export default {
       paginationLinks: [],
       currentPage: null,
       perPage: null,
+      noDataStudent: false,
+      showExample: false,
     };
   },
   mounted() {
     this.fetchDataStudent();
-    gsap.from(this.$refs.tableRows, {
+    gsap.from(this.$refs.dashboard, {
       opacity: 0,
-      y: 30,
-      stagger: 0.15,
-      delay: 1.1,
+      scale: 0.95,
       duration: 0.8,
       ease: "power2.out",
     });
 
     gsap.from(this.$refs.dashboardHeader, {
       opacity: 0,
-      y: -100,
-      duration: 1.8,
-      ease: "power4.out",
-    });
-
-    gsap.from(this.$refs.dashboard, {
-      opacity: 0,
-      scale: 0.95,
-      duration: 1.2,
-      delay: 0.8,
+      y: -50,
+      duration: 1,
+      delay: 0.2,
       ease: "power2.out",
     });
+
+    gsap.from(this.$refs.dashboardTable, {
+      opacity: 0,
+      y: 20,
+      duration: 0.6,
+      delay: 0.4,
+      ease: "power2.out",
+    });
+
+    gsap.from(".search-container", {
+      opacity: 0,
+      scale: 0.9,
+      duration: 0.5,
+      delay: 0.6,
+      ease: "back.out(1.7)",
+    });
+
+    if (this.showExample === true) {
+      gsap.from(".example-overlay", {
+        opacity: 0,
+        scale: 0.8,
+        duration: 0.5,
+        ease: "power2.out",
+      });
+    }
   },
   methods: {
+    hideExample() {
+      gsap.to(".example-overlay", {
+        opacity: 0,
+        scale: 0.8,
+        duration: 0.5,
+        ease: "power2.in",
+        onComplete: () => {
+          this.showExample = false;
+          this.$refs.importFile.value = null;
+        },
+      });
+    },
+
+    searchDataStudent(value) {
+      const token = "Bearer " + localStorage.getItem("token");
+      const search = value.target.value;
+
+      if (search.trim() === "") {
+        this.fetchDataStudent();
+        this.noDataStudent = false;
+        return;
+      }
+
+      axios
+        .get(`http://127.0.0.1:8000/api/students/search/${search}`, {
+          headers: {
+            Authorization: token,
+          },
+        })
+        .then((response) => {
+          if (response.data.data.length === 0) {
+            this.noDataStudent = true;
+            this.dashboardData = [];
+            this.paginationLinks = [];
+          } else {
+            this.dashboardData = response.data.data;
+            this.paginationLinks = response.data.links;
+            this.noDataStudent = false;
+          }
+          console.log(this.noDataStudent);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
     async fetchDataStudent(url = "http://127.0.0.1:8000/api/students") {
       try {
         const response = await axios.get(url, {
@@ -178,6 +291,8 @@ export default {
             timer: 1000,
             showConfirmButton: false,
           });
+
+          this.showExample = false;
         })
         .catch((error) => {
           console.log(error.response ? error.response.data : error.message);
@@ -201,11 +316,9 @@ export default {
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
-  padding-bottom: 50px;
-  padding: 1.3rem;
   position: relative;
-  height: 100vh;
   overflow: hidden;
+  height: 100vh;
 }
 
 .dashboard-container::before {
@@ -216,34 +329,75 @@ export default {
   z-index: -1;
 }
 
+.example-overlay {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 1050;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  padding: 2rem;
+}
+.card-format {
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  width: 100%;
+  margin: 0;
+}
+.card-format img {
+  border-radius: 5px;
+}
+
+.header {
+  margin-bottom: 2rem;
+}
+
 .container::-webkit-scrollbar {
-  width: 13px;
-}
-
-.container::-webkit-scrollbar-thumb {
-  background-color: #6c757d;
-  border-radius: 5px;
-  border: 2px solid rgba(255, 255, 255, 0.8);
-}
-
-.container::-webkit-scrollbar-track {
-  background-color: rgba(0, 0, 0, 0.1);
-  border-radius: 5px;
+  display: none;
 }
 
 .content-container::-webkit-scrollbar {
-  height: 8px;
+  display: none;
 }
 
-.content-container::-webkit-scrollbar-thumb {
-  background-color: #6c757d;
-  border-radius: 4px;
-  border: 2px solid rgba(255, 255, 255, 0.8);
+.search-container {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  border-radius: 1.3rem;
+  margin-bottom: 1.7rem;
 }
 
-.content-container::-webkit-scrollbar-track {
-  background-color: rgba(0, 0, 0, 0.05);
-  border-radius: 4px;
+.search-container:focus-within {
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.search-container input {
+  border-radius: 1.3rem;
+  box-shadow: none;
+}
+
+.search-container input:focus {
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+  border-color: transparent;
+}
+
+.input-group-text {
+  background-color: #f8f9fa;
+  border: 1px solid #ced4da;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 1.3rem;
+}
+
+.input-group-text:hover {
+  background-color: #dee2e6;
+  border-color: rgba(0, 0, 0, 0.2);
 }
 
 .container {
@@ -253,7 +407,8 @@ export default {
 }
 
 .content-container {
-  margin-top: 1rem;
+  margin-right: 1.2rem;
+  margin-left: 1.2rem;
   overflow-x: auto;
   word-wrap: break-word;
 }
@@ -263,14 +418,15 @@ export default {
   border-collapse: collapse;
 }
 
-.container {
-  scrollbar-color: rgba(0, 0, 0, 0.1);
-  height: 100vh;
-  overflow-y: auto;
+th,
+td {
+  word-wrap: break-word;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
-.table td {
-  vertical-align: middle;
+td:last-child {
+  text-align: center;
 }
 
 th:first-child,
@@ -278,15 +434,29 @@ td:first-child {
   width: 50px;
 }
 
-th:last-child,
-td:last-child {
-  width: 200px;
+.table-responsive {
+  overflow-x: auto;
+  overflow-y: visible;
+  position: relative;
 }
 
-th,
-td {
-  white-space: nowrap;
-  overflow: hidden;
+.card {
+  border-radius: 10px;
+  margin-bottom: 15px;
+}
+.card-body {
+  padding: 1rem;
+}
+.card-title {
+  font-size: 1rem;
+  font-weight: 600;
+}
+.card-text {
+  font-size: 0.9rem;
+}
+
+.table td {
+  vertical-align: middle;
 }
 
 .table-responsive {
@@ -319,8 +489,19 @@ td {
     display: none;
   }
 
+  .search-container {
+    margin-bottom: 2rem;
+    width: 100%;
+  }
+
   .dashboard-container {
     padding: 10px;
+  }
+
+  .example-overlay {
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   .header {
@@ -331,6 +512,11 @@ td {
   .pagination {
     display: flex;
     gap: 3px;
+  }
+
+  .content-container {
+    margin-right: 0;
+    margin-left: 0;
   }
 }
 
