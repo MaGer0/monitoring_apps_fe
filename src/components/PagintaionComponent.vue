@@ -26,6 +26,12 @@ export default {
           }))
         : [];
     },
+    hasPreviousPage() {
+      return this.pageLinks && this.pageLinks.length > 0;
+    },
+    hasNextPage() {
+      return this.links.meta.current_page < this.links.meta.last_page;
+    },
   },
   methods: {
     changePage(url) {

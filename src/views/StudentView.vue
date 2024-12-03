@@ -34,7 +34,9 @@
             </thead>
             <tbody>
               <tr v-for="(data, index) in dashboardData" :key="data.id">
-                <td class="text-center">{{ (currentPage - 1) * perPage + index + 1 }}</td>
+                <td class="text-center">
+                  {{ (currentPage - 1) * perPage + index + 1 }}
+                </td>
                 <td class="text-start">{{ data.nisn }}</td>
                 <td class="text-start">{{ data.name }}</td>
                 <td class="text-start">{{ data.class }}</td>
@@ -48,7 +50,9 @@
           <div v-for="(data, index) in dashboardData" :key="data.id">
             <div class="card mb-3 shadow-sm">
               <div class="card-body">
-                <h5 class="card-title">No: {{ (currentPage - 1) * perPage + index + 1 }}</h5>
+                <h5 class="card-title">
+                  No: {{ (currentPage - 1) * perPage + index + 1 }}
+                </h5>
                 <p class="card-text">NISN: {{ data.nisn }}</p>
                 <p class="card-text">Nama: {{ data.name }}</p>
                 <p class="card-text">Kelas: {{ data.class }}</p>
@@ -73,12 +77,14 @@ import AppSidebar from "@/components/AppSidebar.vue";
 import PagintaionComponent from "@/components/PagintaionComponent.vue";
 import axios from "axios";
 import gsap from "gsap";
+import Swal from "sweetalert2";
 
 export default {
   name: "DashboardView",
   components: {
     AppSidebar,
     PagintaionComponent,
+    Swal,
   },
   data() {
     return {
@@ -160,11 +166,29 @@ export default {
           },
         })
         .then((response) => {
-          console.log(response.data.data);
-          this.dashboardData.push(response.data.data);
+          setTimeout(() => {
+            this.dashboardData.push(response.data.data);
+          }, 150);
+          this.fetchDataStudent();
+
+          Swal.fire({
+            icon: "success",
+            title: "Success",
+            text: "Berhasil Mengimport Data!",
+            timer: 1000,
+            showConfirmButton: false,
+          });
         })
         .catch((error) => {
           console.log(error.response ? error.response.data : error.message);
+
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Terjadi Kesalahan saat Mengimport Data!",
+            timer: 1000,
+            showConfirmButton: false,
+          });
         });
     },
   },
@@ -181,6 +205,7 @@ export default {
   padding: 1.3rem;
   position: relative;
   height: 100vh;
+  overflow: hidden;
 }
 
 .dashboard-container::before {

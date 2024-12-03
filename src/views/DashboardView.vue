@@ -1,9 +1,9 @@
 <template>
   <AppSidebar />
   <div class="dashboard-container w-100" @click.self="toggleDropdown(null)">
-    <div class="container p-3" ref="dashboard">
+    <div class="container p-md-3 " ref="dashboard">
       <div
-        class="header mt-3 mx-3 d-flex justify-content-between align-items-center mb-5 gap-2"
+        class="header mt-3 mx-3 d-flex justify-content-between align-items-center gap-2"
         ref="dashboardHeader"
       >
         <h2 class="fw-bold">Dashboard</h2>
@@ -20,7 +20,7 @@
         </div>
       </div>
 
-      <div class="input-group search-container mb-5">
+      <div class="input-group search-container">
         <span class="input-group-text" id="basic-addon2">
           <button class="btn btn-sm">
             <i class="bi bi-search"></i>
@@ -420,8 +420,8 @@ export default {
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
-  padding-bottom: 50px;
   position: relative;
+  overflow: hidden;
   height: 100vh;
 }
 
@@ -433,34 +433,16 @@ export default {
   z-index: -1;
 }
 
+.header {
+  margin-bottom: 2rem;
+}
+
 .container::-webkit-scrollbar {
-  width: 13px;
-}
-
-.container::-webkit-scrollbar-thumb {
-  background-color: #6c757d;
-  border-radius: 5px;
-  border: 2px solid rgba(255, 255, 255, 0.8);
-}
-
-.container::-webkit-scrollbar-track {
-  background-color: rgba(0, 0, 0, 0.1);
-  border-radius: 5px;
+  display: none;
 }
 
 .content-container::-webkit-scrollbar {
-  height: 8px;
-}
-
-.content-container::-webkit-scrollbar-thumb {
-  background-color: #6c757d;
-  border-radius: 4px;
-  border: 2px solid rgba(255, 255, 255, 0.8);
-}
-
-.content-container::-webkit-scrollbar-track {
-  background-color: rgba(0, 0, 0, 0.05);
-  border-radius: 4px;
+  display: none;
 }
 
 .search-container {
@@ -468,6 +450,7 @@ export default {
   margin: 0 auto;
   display: flex;
   border-radius: 1.3rem;
+  margin-bottom: 1.7rem;
 }
 
 .search-container:focus-within {
@@ -506,7 +489,6 @@ export default {
 .content-container {
   margin-right: 1.2rem;
   margin-left: 1.2rem;
-  margin-top: 1rem;
   overflow-x: auto;
   word-wrap: break-word;
 }
@@ -631,6 +613,7 @@ td:first-child {
   }
 
   .search-container {
+    margin-bottom: 2rem;
     width: 100%;
   }
 

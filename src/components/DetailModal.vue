@@ -23,7 +23,7 @@
             <img
               :src="'http://127.0.0.1:8000/storage/images/' + mainData.image"
               class="img-thumbnail"
-              :alt="'http://127.0.0.1:8000/storage/images/' + mainData.image"
+              :alt="mainData.title"
             />
           </div>
           <div class="mb-3">
@@ -130,7 +130,8 @@ export default {
   top: 0;
   left: 0;
   width: 100%;
-  height: 100vh;
+  height: 105vh;
+  padding-bottom: 1rem;
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(5px);
   z-index: 999;

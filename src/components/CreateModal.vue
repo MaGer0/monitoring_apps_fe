@@ -146,14 +146,13 @@ import axios from "axios";
 import { gsap } from "gsap";
 import Treeselect from "vue3-treeselect";
 import "vue3-treeselect/dist/vue3-treeselect.css";
-import iziToast from "izitoast";
-import "iziToast/dist/css/iziToast.css";
+import Swal from "sweetalert2";
 
 export default {
   name: "CreateModals",
   components: {
     Treeselect,
-    iziToast,
+    Swal,
   },
   data() {
     return {
@@ -217,7 +216,8 @@ export default {
 
       const dataForSubmit = new FormData();
       dataForSubmit.append("title", this.mainData.title);
-      this.mainData.image && dataForSubmit.append("image", this.$refs.fileInput.files[0]);
+      this.mainData.image &&
+        dataForSubmit.append("image", this.$refs.fileInput.files[0]);
       dataForSubmit.append("description", this.mainData.description);
       this.mainData.date && dataForSubmit.append("date", this.mainData.date);
       this.mainData.start_time &&
@@ -251,14 +251,15 @@ export default {
               }
             )
             .then(() => {
-              this.$emit("kirimData");
-              iziToast.success({
-                title: "Success",
-                message: "Data Monitoring Berhasil dibuat",
-                position: "bottomRight",
-                timeout: 5000,
-                transitionIn: "fadeInRight",
-                transitionOut: "fadeOutRight",
+              setTimeout(() => {
+                this.$emit("kirimData");
+              }, 150);
+              Swal.fire({
+                icon: "success",
+                title: "Berhasil",
+                text: "Data Monitoring berhasil dibuat!",
+                timer: 1000,
+                showConfirmButton: false,
               });
               this.isSubmit = false;
               this.closeModal();
@@ -321,13 +322,14 @@ export default {
   top: 0;
   left: 0;
   width: 100%;
-  height: 100vh;
+  height: 105vh;
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(5px);
   z-index: 999;
   display: flex;
   justify-content: center;
   align-items: center;
+  padding-bottom: 1rem;
 }
 
 .modal-container {
