@@ -208,6 +208,7 @@ import ExportModules from "@/components/ExportModules.vue";
 import PagintaionComponent from "@/components/PagintaionComponent.vue";
 import gsap from "gsap";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 export default {
   name: "DashboardView",
@@ -217,6 +218,7 @@ export default {
     DetailModal,
     PagintaionComponent,
     ExportModules,
+    Swal,
   },
   data() {
     return {
@@ -242,20 +244,21 @@ export default {
       ease: "power2.out",
     });
 
-    gsap.from(this.$refs.dashboardHeader, {
-      opacity: 0,
-      y: -100,
-      duration: 1.8,
-      ease: "power4.out",
-    });
-
     gsap.from(this.$refs.dashboard, {
       opacity: 0,
-      scale: 0.95,
-      duration: 1.2,
-      delay: 0.8,
+      scale: 0.9,
+      duration: 0.8,
       ease: "power2.out",
     });
+
+    gsap.from(this.$refs.dashboardHeader, {
+      opacity: 0,
+      y: -50,
+      duration: 1,
+      delay: 0.2,
+      ease: "power2.out",
+    });
+
     document.addEventListener("click", this.closeDropdown);
   },
   methods: {
@@ -306,7 +309,9 @@ export default {
     toggleDropdown(id) {
       this.activeDropdownId = this.activeDropdownId === id ? null : id;
     },
-    async fetchData(url = "http://127.0.0.1:8000/api/monitorings") {
+    async fetchData(
+      url = `http://127.0.0.1:8000/api/monitorings?page=${this.currentPage}`
+    ) {
       try {
         const response = await axios.get(url, {
           headers: {
@@ -330,22 +335,52 @@ export default {
       }
     },
     deleteMonitoring(id) {
-      console.log(id);
-      const token = "Bearer " + localStorage.getItem("token")
+      Swal.fire({
+        title: "Konfirmasi Hapus",
+        text: "Apakah Anda yakin ingin menghapus data ini?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Ya, Hapus",
+        cancelButtonText: "Batal",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          const token = "Bearer " + localStorage.getItem("token");
 
-      axios
-      .delete("http://127.0.0.1:8000/api/monitorings/" + id, {
-        headers: {
-          Authorization: token
+          axios
+            .delete("http://127.0.0.1:8000/api/monitorings/" + id, {
+              headers: {
+                Authorization: token,
+              },
+            })
+            .then(() => {
+              Swal.fire({
+                icon: "success",
+                title: "Berhasil",
+                text: "Data Monitoring berhasil dihapus!",
+                timer: 1000,
+                showConfirmButton: false,
+              });
+              const currentUrl = `http://127.0.0.1:8000/api/monitorings?page=${this.currentPage}`;
+              this.fetchData(currentUrl).then(() => {
+                if (this.dashboardData.length === 0 && this.currentPage > 1) {
+                  this.currentPage--;
+                  const prevUrl = `http://127.0.0.1:8000/api/monitorings?page=${this.currentPage}`;
+                  this.fetchData(prevUrl);
+                }
+              });
+            })
+            .catch((error) => {
+              console.error(error);
+              Swal.fire({
+                icon: "error",
+                title: "Gagal",
+                text: "Gagal menghapus data monitoring.",
+              });
+            });
         }
-      })
-      .then((response) => {
-        console.log(response)
-        this.fetchData()
-      })
-      .catch((error) => {
-        console.log(error)
-      })
+      });
     },
     openCreateModal() {
       this.showModal = true;
@@ -593,6 +628,10 @@ td:first-child {
 @media (max-width: 768px) {
   .table-responsive {
     display: none;
+  }
+
+  .search-container {
+    width: 100%;
   }
 
   .dashboard-container {
