@@ -112,7 +112,10 @@
                         </button>
                       </li>
                       <li>
-                        <button class="btn p-2 w-100">
+                        <button
+                          class="btn p-2 w-100"
+                          @click="deleteMonitoring(data.id)"
+                        >
                           <i class="bi bi-trash fs-5"></i>
                         </button>
                       </li>
@@ -173,7 +176,10 @@
                     </button>
                   </li>
                   <li>
-                    <button class="btn p-2 w-100">
+                    <button
+                      @click="deleteMonitoring(data.id)"
+                      class="btn p-2 w-100"
+                    >
                       <i class="bi bi-trash fs-5"></i>
                     </button>
                   </li>
@@ -322,6 +328,24 @@ export default {
       } catch (error) {
         console.error("Error fetching data:", error);
       }
+    },
+    deleteMonitoring(id) {
+      console.log(id);
+      const token = "Bearer " + localStorage.getItem("token")
+
+      axios
+      .delete("http://127.0.0.1:8000/api/monitorings/" + id, {
+        headers: {
+          Authorization: token
+        }
+      })
+      .then((response) => {
+        console.log(response)
+        this.fetchData()
+      })
+      .catch((error) => {
+        console.log(error)
+      })
     },
     openCreateModal() {
       this.showModal = true;
