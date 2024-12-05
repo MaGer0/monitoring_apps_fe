@@ -1,7 +1,7 @@
 <template>
   <AppSidebar />
   <div class="dashboard-container w-100" @click.self="toggleDropdown(null)">
-    <div class="container p-md-3 " ref="dashboard">
+    <div class="container p-md-3" ref="dashboard">
       <div
         class="header mt-3 mx-3 d-flex justify-content-between align-items-center gap-2"
         ref="dashboardHeader"
@@ -20,7 +20,9 @@
         </div>
       </div>
 
-      <div class="input-group search-container">
+      <LoadingSpinner v-if="isLoading" />
+
+      <div class="input-group search-container" v-else>
         <span class="input-group-text" id="basic-addon2">
           <button class="btn btn-sm">
             <i class="bi bi-search"></i>
@@ -31,7 +33,6 @@
           class="form-control form-control-sm"
           placeholder="Cari Judul atau Deskripsi"
           aria-label="Cari Judul atau Deskripsi"
-          aria-describedby="basic-addon2"
           @keyup="searchValue"
         />
       </div>
@@ -50,7 +51,13 @@
         @close="closeDetailModal"
       />
 
-      <div class="content-container">
+      <div class="d-flex justify-content-center" v-if="isSearching">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+
+      <div class="content-container" v-if="!isSearching">
         <div class="table-responsive d-none d-md-block">
           <table
             class="table table-borderless table-hover shadow-sm"
@@ -73,7 +80,7 @@
                   rowspan="6"
                   class="text-center p-5 fw-bold fs-4"
                 >
-                  Data Not Found
+                  No Data Here ...
                 </td>
               </tr>
               <tr v-for="(data, index) in dashboardData" :key="data.id">
@@ -127,10 +134,12 @@
           </table>
         </div>
 
+        <LoadingSpinner v-if="isLoading" />
+
         <!-- Mobile View -->
-        <div class="d-block d-md-none">
+        <div class="d-block d-md-none" v-else>
           <div v-if="noData === true">
-            <p colspan="6" class="text-center">Data Not Found</p>
+            <p colspan="6" class="text-center">No Data Here ...</p>
           </div>
           <div
             v-for="(data, index) in dashboardData"
@@ -189,6 +198,7 @@
           </div>
         </div>
         <PagintaionComponent
+          v-if="dashboardData.length > 0"
           :prevLink="links.prev"
           :nextLink="links.next"
           :links="paginationLinks"
@@ -206,6 +216,7 @@ import CreateModal from "@/components/CreateModal.vue";
 import AppSidebar from "@/components/AppSidebar.vue";
 import ExportModules from "@/components/ExportModules.vue";
 import PagintaionComponent from "@/components/PagintaionComponent.vue";
+import LoadingSpinner from "@/components/LoadingSpinner.vue";
 import gsap from "gsap";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -219,6 +230,7 @@ export default {
     PagintaionComponent,
     ExportModules,
     Swal,
+    LoadingSpinner,
   },
   data() {
     return {
@@ -232,6 +244,8 @@ export default {
       currentPage: null,
       perPage: null,
       noData: false,
+      isLoading: true,
+      isSearching: false,
     };
   },
   mounted() {
@@ -266,9 +280,13 @@ export default {
       const token = "Bearer " + localStorage.getItem("token");
       const search = event.target.value;
 
+      this.isSearching = true;
+
       if (search.trim() === "") {
         this.fetchData();
         this.noData = false;
+        this.isSearching = false;
+        this.isLoading = true;
         return;
       }
 
@@ -279,21 +297,23 @@ export default {
           },
         })
         .then((response) => {
-          console.log(response.data.data);
-
           if (response.data.data.length === 0) {
             this.noData = true;
+            this.isSearching = false;
             this.dashboardData = [];
             this.paginationLinks = [];
           } else {
             this.dashboardData = response.data.data;
-            this.paginationLinks = response.data.links;
             this.noData = false;
+            this.isSearching = false;
           }
-          console.log(this.noData);
         })
         .catch((error) => {
           console.log(error);
+          this.isSearching = false;
+        })
+        .finally(() => {
+          this.isLoading = false;
         });
     },
     closeDropdown(e) {
@@ -313,6 +333,7 @@ export default {
       url = `http://127.0.0.1:8000/api/monitorings?page=${this.currentPage}`
     ) {
       try {
+        this.isLoading = true;
         const response = await axios.get(url, {
           headers: {
             Authorization: "Bearer " + localStorage.getItem("token"),
@@ -323,6 +344,10 @@ export default {
         this.dashboardData = data;
         this.links.prev = links.prev;
         this.links.next = links.next;
+        if (this.dashboardData.length === 0) {
+          this.noData = true;
+          this.paginationLinks = [];
+        }
         this.paginationLinks = meta.links.map((link) => ({
           label: link.label,
           url: link.url,
@@ -332,6 +357,8 @@ export default {
         this.perPage = meta.per_page;
       } catch (error) {
         console.error("Error fetching data:", error);
+      } finally {
+        this.isLoading = false;
       }
     },
     deleteMonitoring(id) {
@@ -346,6 +373,15 @@ export default {
         cancelButtonText: "Batal",
       }).then((result) => {
         if (result.isConfirmed) {
+          Swal.fire({
+            title: "Menghapus Data ...",
+            loaderHtml: '<i class="fa fa-refresh fa-spin"></i>',
+            timer: 500,
+            showConfirmButton: false,
+            didOpen: () => {
+              Swal.showLoading();
+            },
+          })
           const token = "Bearer " + localStorage.getItem("token");
 
           axios
@@ -397,6 +433,7 @@ export default {
         })
         .then((response) => {
           this.dashboardData = response.data.data;
+          this.noData = false;
         })
         .catch((error) => {
           console.log(error);
