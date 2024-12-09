@@ -9,140 +9,138 @@
           &times;
         </button>
       </div>
-      <form v-on:submit.prevent>
+
+      <LoadingSpinner v-if="isLoading" />
+      <form v-on:submit.prevent v-if="!isLoading && mainData">
         <div class="modal-body p-3">
-          <div class="mb-3">
-            <label for="judul" class="form-label">Judul :</label>
-            <input
-              type="text"
-              id="judul"
-              class="form-control"
-              v-model="mainData.title"
-            />
-            <div v-if="isSubmit">
-              <div v-if="!mainData.title">
-                <p class="text-danger">Judul Wajib Diisi!</p>
+          <div>
+            <div class="mb-3">
+              <label for="judul" class="form-label">Judul :</label>
+              <input
+                type="text"
+                id="judul"
+                class="form-control"
+                v-model="mainData.title"
+              />
+              <div v-if="isSubmit">
+                <div v-if="!mainData.title">
+                  <p class="text-danger">Judul Wajib Diisi!</p>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="mb-3">
-            <label for="image" class="form-label">Image :</label>
-            <br />
-            <input
-              v-show="!mainData.image"
-              type="file"
-              ref="fileInput"
-              class="form-control"
-              @change="setImage"
-              id="image"
-            />
-            <div v-if="mainData.image" class="d-flex flex-column">
-              <img
-                :src="
-                  image
-                    ? image
-                    : 'http://127.0.0.1:8000/storage/images/' + mainData.image
-                "
-                :alt="'http://127.0.0.1:8000/storage/images/' + mainData.image"
-                class="img-fluid mt-3"
+            <div class="mb-3">
+              <label for="image" class="form-label">Image :</label>
+              <br />
+              <input
+                v-show="!mainData.image"
+                type="file"
+                ref="fileInput"
+                class="form-control"
+                @change="setImage"
+                id="image"
               />
-              <button
-                @click="removeImage"
-                class="btn btn-danger text-light mt-2"
+              <div v-if="!mainData.image" class="mt-2">
+                <p class="text-muted">Belum ada gambar untuk monitoring ini.</p>
+              </div>
+              <div class="d-flex flex-column" v-else>
+                <img class="img-fluid mt-3" :src="computedImage" />
+                <button
+                  @click="removeImage"
+                  class="btn btn-danger text-light mt-2"
+                >
+                  <i class="bi bi-x"></i>
+                </button>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="deskripsi" class="form-label">Deskripsi :</label>
+              <textarea
+                id="deskripsi"
+                class="form-control"
+                v-model="mainData.description"
+                rows="4"
+              ></textarea>
+              <div v-if="isSubmit">
+                <div v-if="!mainData.description">
+                  <p class="text-danger">Deskripsi Wajib Diisi!</p>
+                </div>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="tanggal" class="form-label">Tanggal :</label>
+              <input
+                type="date"
+                id="tanggal"
+                class="form-control"
+                v-model="mainData.date"
+              />
+              <div v-if="isSubmit">
+                <div v-if="!mainData.date">
+                  <p class="text-danger">Tanggal Wajib Diisi!</p>
+                </div>
+              </div>
+            </div>
+            <div class="mb-3 d-flex flex-column">
+              <label for="jam-mulai">Jam Mulai :</label>
+              <input
+                type="time"
+                name="jam-mulai"
+                id="jamMulai"
+                v-model="mainData.start_time"
+                class="form-control"
+              />
+              <div v-if="isSubmit">
+                <div v-if="!mainData.start_time">
+                  <p class="text-danger">Jam Mulai Wajib Diisi!</p>
+                </div>
+              </div>
+            </div>
+            <div class="mb-3 d-flex flex-column">
+              <label for="jam-selesai">Jam Selesai :</label>
+              <input
+                type="time"
+                name="jam-selesai"
+                id="jamSelesai"
+                v-model="mainData.end_time"
+                class="form-control"
+              />
+              <div v-if="isSubmit">
+                <div v-if="!mainData.end_time">
+                  <p class="text-danger">Jam Selesai Wajib Diisi!</p>
+                </div>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="detail" class="form-label">Keterangan Murid :</label>
+              <treeselect
+                :options="options"
+                :clearable="true"
+                :searchable="true"
+                :multiple="true"
+                v-model="detailDataModel"
+                class="treeselect shadow"
               >
-                <i class="bi bi-x"></i>
+                <template #value-label="{ node }">
+                  <div>{{ node.raw.customLabel }}</div>
+                </template>
+              </treeselect>
+            </div>
+            <div class="modal-footer d-flex justify-content-end gap-2">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                @click="cancelModal"
+              >
+                <i class="bi bi-x"></i> Cancel
+              </button>
+              <button
+                type="submit"
+                class="btn btn-primary"
+                @click="submitForm(mainData.id)"
+              >
+                <i class="bi bi-save"></i> Save Changes
               </button>
             </div>
-          </div>
-          <div class="mb-3">
-            <label for="deskripsi" class="form-label">Deskripsi :</label>
-            <textarea
-              id="deskripsi"
-              class="form-control"
-              v-model="mainData.description"
-              rows="4"
-            ></textarea>
-            <div v-if="isSubmit">
-              <div v-if="!mainData.description">
-                <p class="text-danger">Deskripsi Wajib Diisi!</p>
-              </div>
-            </div>
-          </div>
-          <div class="mb-3">
-            <label for="tanggal" class="form-label">Tanggal :</label>
-            <input
-              type="date"
-              id="tanggal"
-              class="form-control"
-              v-model="mainData.date"
-            />
-            <div v-if="isSubmit">
-              <div v-if="!mainData.date">
-                <p class="text-danger">Tanggal Wajib Diisi!</p>
-              </div>
-            </div>
-          </div>
-          <div class="mb-3 d-flex flex-column">
-            <label for="jam-mulai">Jam Mulai :</label>
-            <input
-              type="time"
-              name="jam-mulai"
-              id="jamMulai"
-              v-model="mainData.start_time"
-              class="input-time"
-            />
-            <div v-if="isSubmit">
-              <div v-if="!mainData.start_time">
-                <p class="text-danger">Jam Mulai Wajib Diisi!</p>
-              </div>
-            </div>
-          </div>
-          <div class="mb-3 d-flex flex-column">
-            <label for="jam-selesai">Jam Selesai :</label>
-            <input
-              type="time"
-              name="jam-selesai"
-              id="jamSelesai"
-              v-model="mainData.end_time"
-              class="input-time"
-            />
-            <div v-if="isSubmit">
-              <div v-if="!mainData.end_time">
-                <p class="text-danger">Jam Selesai Wajib Diisi!</p>
-              </div>
-            </div>
-          </div>
-          <div class="mb-3">
-            <label for="detail" class="form-label">Keterangan Murid :</label>
-            <treeselect
-              :options="options"
-              :clearable="true"
-              :searchable="true"
-              :multiple="true"
-              :value="value"
-              v-model="mainData.detailDataModel"
-              class="treeselect"
-            >
-              <template #value-label="{ node }">
-                <div>{{ node.raw.customLabel }}</div>
-              </template>
-            </treeselect>
-          </div>
-          <div class="modal-footer d-flex justify-content-end gap-2">
-            <button
-              type="button"
-              class="btn btn-secondary"
-              @click="cancelModal"
-            >
-              <i class="bi bi-x"></i> Cancel
-            </button>
-            <button
-              type="submit"
-              class="btn btn-primary"
-              @click="submitForm(mainData.id)"
-            >
-              <i class="bi bi-save"></i> Save Changes
-            </button>
           </div>
         </div>
       </form>
@@ -155,11 +153,12 @@ import { gsap } from "gsap";
 import axios from "axios";
 import Treeselect from "vue3-treeselect";
 import "vue3-treeselect/dist/vue3-treeselect.css";
+import LoadingSpinner from "./LoadingSpinner.vue";
 import Swal from "sweetalert2";
 export default {
   name: "EditModal",
   props: ["detailMonitoring"],
-  components: { Treeselect },
+  components: { Treeselect, LoadingSpinner },
   data() {
     return {
       mainData: {},
@@ -168,9 +167,22 @@ export default {
       detailDataModel: [],
       options: [],
       value: [],
-      image: null,
       monitoring: {},
+      isLoading: true,
     };
+  },
+  computed: {
+    computedImage() {
+      if (this.mainData.image && this.mainData.image.startsWith("data:image")) {
+        return this.mainData.image;
+      }
+
+      if (this.mainData.image?.startsWith("http")) {
+        return this.mainData.image;
+      }
+
+      return `http://127.0.0.1:8000/storage/images/${this.mainData.image}`;
+    },
   },
   methods: {
     closeModal() {
@@ -197,16 +209,12 @@ export default {
     },
     setImage(e) {
       let file = e.target.files[0];
-      console.log(file);
       if (file) {
-        console.log("jojojo");
         const reader = new FileReader();
-        // reader.onload = () => {
-        //   this.mainData.image = reader.result;
-        console.log(e.target.files[0]);
-        this.image = URL.createObjectURL(e.target.files[0]);
-        console.log(image);
-        // };
+        reader.readAsDataURL(file);
+        reader.onload = () => {
+          this.mainData.image = reader.result;
+        };
       }
     },
 
@@ -217,8 +225,8 @@ export default {
     getMonitoringData(id) {
       const token = "Bearer " + localStorage.getItem("token");
       const headers = { Authorization: token };
-      console.log(id);
 
+      this.isLoading = true;
       Promise.all([
         axios.get(`http://127.0.0.1:8000/api/monitorings/${id}`, { headers }),
         axios.get(`http://127.0.0.1:8000/api/notpresents/${id}`, { headers }),
@@ -227,83 +235,140 @@ export default {
           this.mainData = mainResponse.data.data;
           this.detailData = detailResponse.data.data;
 
-          this.mainData.detailDataModel = this.detailData.map((item) => {
-            return item.students_nisn + " " + item.keterangan;
-          });
+          console.log(this.detailData);
+          console.log(detailResponse.data.data);
+
+          // this.detailDataModel = this.detailData.map((item) => {
+          //   return {
+          //     id: item.student.nisn,
+          //     label: item.student.name ,
+          //     children: [
+          //       {
+          //         id: item.student.nisn + ` ${item.keterangan}`,
+          //         label: item.keterangan,
+          //         customLabel: `${item.student.name} - ${item.keterangan}`,
+          //       }
+          //     ]
+          //   };
+          // });
+          // console.log(this.detailDataModel);
         })
         .catch((error) => {
           console.error(error);
+        })
+        .finally(() => {
+          this.isLoading = false;
         });
     },
-    submitForm(id) {
-      console.log(id);
+    async submitForm(id) {
       this.isSubmit = true;
-      const token = "Bearer " + localStorage.getItem("token");
 
-      this.detailData = this.detailDataModel.map((item) => {
-        const [students_nisn, keterangan] = item.split(" ");
-        return { students_nisn, keterangan };
-      });
-
-      const dataForSubmit = new FormData();
-      dataForSubmit.append("_method", "PUT");
-      dataForSubmit.append("image", this.$refs.fileInput.files[0]);
-
-      this.monitoring.title = this.mainData.title;
-      this.monitoring.description = this.mainData.description;
-      this.monitoring.date = this.mainData.date;
-      this.monitoring.start_time = this.mainData.start_time.substring(0, 5);
-      this.monitoring.end_time = this.mainData.end_time.substring(0, 5);
-      axios
-        .put(`http://127.0.0.1:8000/api/monitorings/${id}`, this.monitoring, {
-          headers: {
-            Authorization: token,
-            Accept: "application/json",
-          },
-        })
-        .then((response) => {
-          axios.post(
-            `http://127.0.0.1:8000/api/monitorings/${id}/image`,
-            dataForSubmit,
-            {
-              headers: {
-                Authorization: token,
-                Accept: "application/json",
-              },
-            }
-          );
-          console.log(response.data.data.id);
-
-          const monitoringsId = response.data.data.id;
-          axios
-            .put(
-              `http://127.0.0.1:8000/api/notpresents/${monitoringsId}`,
-              this.detailData,
-              {
-                headers: {
-                  Authorization: token,
-                  Accept: "application/json",
-                },
-              }
-            )
-            .then(() => {
-              setTimeout(() => {
-                this.$emit("update");
-              }, 150);
-              Swal.fire({
-                icon: "success",
-                title: "Berhasil",
-                text: "Data Monitoring Berhasil Di Ubah!",
-                timer: 1000,
-                showConfirmButton: false,
-              });
-              this.closeModal();
-              this.isSubmit = false;
-            });
-        })
-        .catch((error) => {
-          console.log(error);
+      try {
+        const confirmation = Swal.fire({
+          title: "Konfirmasi Edit",
+          text: "Apakah Anda yakin ingin mengubah data ini?",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#d33",
+          cancelButtonColor: "#3085d6",
+          confirmButtonText: "Ya, Ubah",
+          cancelButtonText: "Batal",
         });
+        if (!(await confirmation).isConfirmed) {
+          return;
+        }
+        Swal.fire({
+          title: "Mengubah Data ...",
+          loaderHtml: '<i class="fa fa-refresh fa-spin"></i>',
+          timer: 800,
+          showConfirmButton: false,
+          didOpen: () => {
+            Swal.showLoading();
+          },
+        });
+
+        const token = "Bearer " + localStorage.getItem("token");
+
+        this.detailData = this.detailDataModel.map((item) => {
+          const [students_nisn, keterangan] = item.split(" ");
+          return { students_nisn, keterangan };
+        });
+
+        const dataForSubmit = new FormData();
+        dataForSubmit.append("_method", "PUT");
+        dataForSubmit.append("image", this.$refs.fileInput.files[0]);
+
+        this.monitoring.title = this.mainData.title;
+        this.monitoring.description = this.mainData.description;
+        this.monitoring.date = this.mainData.date;
+        this.monitoring.start_time = this.mainData.start_time.substring(0, 5);
+        this.monitoring.end_time = this.mainData.end_time.substring(0, 5);
+        const response = axios.put(
+          `http://127.0.0.1:8000/api/monitorings/${id}`,
+          this.monitoring,
+          {
+            headers: {
+              Authorization: token,
+              Accept: "application/json",
+            },
+          }
+        );
+        await axios.post(
+          `http://127.0.0.1:8000/api/monitorings/${id}/image`,
+          dataForSubmit,
+          {
+            headers: {
+              Authorization: token,
+              Accept: "application/json",
+            },
+          }
+        );
+
+        const monitoringsId = response.data.data.id;
+        await axios.put(
+          `http://127.0.0.1:8000/api/notpresents/${monitoringsId}`,
+          this.detailData,
+          {
+            headers: {
+              Authorization: token,
+              Accept: "application/json",
+            },
+          }
+        );
+        setTimeout(() => {
+          this.$emit("update");
+        }, 150);
+        Swal.fire({
+          icon: "success",
+          text: "Data Monitoring Berhasil Di Ubah!",
+          showConfirmButton: false,
+          timer: 1500,
+          showClass: {
+            popup: "animate__animated animate__fadeInDown",
+          },
+          hideClass: {
+            popup: "animate__animated animate__fadeOutUp",
+          },
+        });
+
+        this.isSubmit = false;
+        this.closeModal();
+      } catch (error) {
+        console.error(error);
+
+        Swal.fire({
+          icon: "error",
+          text:  !this.$refs.fileInput.files[0] ?  error.response.statusText : error.response.data.message,
+          showConfirmButton: false,
+          timer: 1500,
+          showClass: {
+            popup: "animate__animated animate__fadeInDown",
+          },
+          hideClass: {
+            popup: "animate__animated animate__fadeOutUp",
+          },
+        });
+      }
     },
     cancelModal() {
       this.closeModal();
@@ -377,6 +442,10 @@ export default {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
 }
 
+.modal-container::-webkit-scrollbar {
+  display: none;
+}
+
 .modal-header {
   font-weight: bold;
 }
@@ -384,5 +453,9 @@ export default {
 .modal-footer {
   border-top: 1px solid #e9ecef;
   padding-top: 1rem;
+}
+
+.form-control {
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.25);
 }
 </style>

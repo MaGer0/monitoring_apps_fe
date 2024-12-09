@@ -25,6 +25,7 @@
 <script>
 import axios from "axios";
 import { gsap } from "gsap";
+import Swal from "sweetalert2";
 
 export default {
   name: "ExportModules",
@@ -51,9 +52,24 @@ export default {
           link.href = window.URL.createObjectURL(blob);
           link.download = fileName;
           link.click();
+
+          Swal.fire({
+            icon: 'success',
+            title: 'Berhasil',
+            text: `Data Berhasil di Export ke ${type === 'excel' ? 'Excel' : 'PDF'}`,
+            showConfirmButton: false,
+            timer: 1500
+          })
       })
       .catch((error) => {
           console.log(error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Gagal',
+            text: `Data Gagal di Export ke ${type === 'excel' ? 'Excel' : 'PDF'}`,
+            showConfirmButton: false,
+            timer: 1000
+          })
       })
       this.closeModal();
     },

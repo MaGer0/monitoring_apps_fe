@@ -20,7 +20,11 @@
           </div>
           <div class="mb-3">
             <label class="form-label">Gambar :</label>
+            <div v-if="mainData.image === null">
+              <p class="text-muted">Tidak ada gambar untuk monitoring ini.</p>
+            </div>
             <img
+              v-else
               :src="'http://127.0.0.1:8000/storage/images/' + mainData.image"
               class="img-thumbnail"
               :alt="mainData.title"

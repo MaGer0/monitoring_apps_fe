@@ -2,9 +2,10 @@
   <AppSidebar />
   <div class="dashboard-container w-100" @click.self="toggleDropdown(null)">
     <div class="container p-md-3" ref="dashboard">
+      <LoadingSpinner v-if="isLoading" />
       <div
         class="header mt-3 mx-3 d-flex justify-content-between align-items-center gap-2"
-        ref="dashboardHeader"
+        ref="dashboardHeader" v-else
       >
         <h2 class="fw-bold">Dashboard</h2>
         <div class="d-flex gap-2">
@@ -19,10 +20,9 @@
           </button>
         </div>
       </div>
+      
 
-      <LoadingSpinner v-if="isLoading" />
-
-      <div class="input-group search-container" v-else>
+      <div class="input-group search-container">
         <span class="input-group-text" id="basic-addon2">
           <button class="btn btn-sm">
             <i class="bi bi-search"></i>
@@ -59,166 +59,167 @@
       />
 
       <div class="content-container">
-      <div class="d-flex justify-content-center" v-if="isSearching">
-        <div class="spinner-border text-primary" role="status">
-          <span class="visually-hidden">Loading...</span>
-        </div>
-      </div>
-
-      <div class="content-container" v-if="!isSearching">
-        <div class="table-responsive d-none d-md-block">
-          <table
-            class="table table-borderless table-hover shadow-sm"
-            ref="tableRows"
-          >
-            <thead class="opacity-50">
-              <tr class="opacity-100 table-light text">
-                <th class="text-center">No</th>
-                <th class="text-start">Judul</th>
-                <th class="text-start">Deskripsi</th>
-                <th class="text-start">Date</th>
-                <th class="text-start">Jam Mulai</th>
-                <th class="text-start">Jam Selesai</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-if="noData === true">
-                <td
-                  colspan="6"
-                  rowspan="6"
-                  class="text-center p-5 fw-bold fs-4"
-                >
-                  No Data Here ...
-                </td>
-              </tr>
-              <tr v-for="(data, index) in dashboardData" :key="data.id">
-                <td class="text-center">
-                  {{ (currentPage - 1) * perPage + index + 1 }}
-                </td>
-                <td class="text-start">{{ data.title }}</td>
-                <td class="text-start">{{ data.description }}</td>
-                <td class="text-start">{{ data.date }}</td>
-                <td class="text-start">{{ data.start_time }}</td>
-                <td class="text-start">
-                  <div class="d-flex align-items-center">
-                    <span>{{ data.end_time }}</span>
-                    <button
-                      class="btn border-0 ms-5 p-0"
-                      @click="toggleDropdown(data.id)"
-                    >
-                      <i class="bi bi-three-dots"></i>
-                    </button>
-                    <div
-                      @click.self="toggleDropdown(data.id)"
-                      v-if="activeDropdownId === data.id"
-                      class="dropdown-menu show horizontal-dropdown"
-                    >
-                      <li>
-                        <button
-                          class="btn p-2 w-100"
-                          @click="openDetailModal(data.id)"
-                        >
-                          <i class="bi bi-eye fs-5"></i>
-                        </button>
-                      </li>
-                      <li>
-                        <button
-                          class="btn p-2 w-100"
-                          @click="openEditModal(data.id)"
-                        >
-                          <i class="bi bi-pencil fs-5"></i>
-                        </button>
-                      </li>
-                      <li>
-                        <button
-                          class="btn p-2 w-100"
-                          @click="deleteMonitoring(data.id)"
-                        >
-                          <i class="bi bi-trash fs-5"></i>
-                        </button>
-                      </li>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <LoadingSpinner v-if="isLoading" />
-
-        <!-- Mobile View -->
-        <div class="d-block d-md-none" v-else>
-          <div v-if="noData === true">
-            <p colspan="6" class="text-center">No Data Here ...</p>
+        <div class="d-flex justify-content-center" v-if="isSearching">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
           </div>
-          <div
-            v-for="(data, index) in dashboardData"
-            :key="data.id"
-            class="card mb-3 shadow-sm"
-          >
-            <div class="card-body">
-              <h5 class="card-title">
-                No: {{ (currentPage - 1) * perPage + index + 1 }}
-              </h5>
-              <p class="card-text">Title: {{ data.title }}</p>
-              <p v-if="data.image !== null" class="card-text">
-                Image:
-                <img
-                  :src="'http://127.0.0.1:8000/storage/images/' + data.image"
-                  alt=""
-                  class="img-thumbnail"
-                />
-              </p>
-              <p class="card-text">Description: {{ data.description }}</p>
-              <p class="card-text">Date: {{ data.date }}</p>
-              <p class="card-text">Jam Mulai: {{ data.start_time }}</p>
-              <div class="card-text">
-                <span>Jam Selesai: {{ data.end_time }}</span>
-                <button @click="toggleDropdown(data.id)" class="btn ms-3 p-0">
-                  <i class="bi bi bi-three-dots"></i>
-                </button>
-                <div
-                  v-if="activeDropdownId === data.id"
-                  class="dropdown-menu show vertical-dropdown"
-                >
-                  <li>
-                    <button
-                      @click="openDetailModal(data.id)"
-                      class="btn p-2 w-100"
-                    >
-                      <i class="bi bi-eye fs-5"></i>
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      class="btn p-2 w-100"
-                      @click="openEditModal(data.id)"
-                    >
-                      <i class="bi bi-pencil fs-5"></i>
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      @click="deleteMonitoring(data.id)"
-                      class="btn p-2 w-100"
-                    >
-                      <i class="bi bi-trash fs-5"></i>
-                    </button>
-                  </li>
+        </div>
+
+        <div class="content-container" v-if="!isSearching">
+          <div class="table-responsive d-none d-md-block">
+            <table
+              class="table table-borderless table-hover shadow-sm"
+              ref="tableRows"
+            >
+              <thead class="opacity-50">
+                <tr class="opacity-100 table-light text">
+                  <th class="text-center">No</th>
+                  <th class="text-start">Judul</th>
+                  <th class="text-start">Deskripsi</th>
+                  <th class="text-start">Date</th>
+                  <th class="text-start">Jam Mulai</th>
+                  <th class="text-start">Jam Selesai</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-if="noData === true">
+                  <td
+                    colspan="6"
+                    rowspan="6"
+                    class="text-center p-5 fw-bold fs-4"
+                  >
+                    No Data Here ...
+                  </td>
+                </tr>
+                <tr v-for="(data, index) in dashboardData" :key="data.id">
+                  <td class="text-center">
+                    {{ (currentPage - 1) * perPage + index + 1 }}
+                  </td>
+                  <td class="text-start">{{ data.title }}</td>
+                  <td class="text-start">{{ data.description }}</td>
+                  <td class="text-start">{{ data.date }}</td>
+                  <td class="text-start">{{ data.start_time }}</td>
+                  <td class="text-start">
+                    <div class="d-flex align-items-center">
+                      <span>{{ data.end_time }}</span>
+                      <button
+                        class="btn border-0 ms-5 p-0"
+                        @click="toggleDropdown(data.id)"
+                      >
+                        <i class="bi bi-three-dots"></i>
+                      </button>
+                      <div
+                        @click.self="toggleDropdown(data.id)"
+                        v-if="activeDropdownId === data.id"
+                        class="dropdown-menu show horizontal-dropdown"
+                      >
+                        <li>
+                          <button
+                            class="btn p-2 w-100"
+                            @click="openDetailModal(data.id)"
+                          >
+                            <i class="bi bi-eye fs-5"></i>
+                          </button>
+                        </li>
+                        <li>
+                          <button
+                            class="btn p-2 w-100"
+                            @click="openEditModal(data.id)"
+                          >
+                            <i class="bi bi-pencil fs-5"></i>
+                          </button>
+                        </li>
+                        <li>
+                          <button
+                            class="btn p-2 w-100"
+                            @click="deleteMonitoring(data.id)"
+                          >
+                            <i class="bi bi-trash fs-5"></i>
+                          </button>
+                        </li>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <LoadingSpinner v-if="isLoading" />
+
+          <!-- Mobile View -->
+          <div class="d-block d-md-none" v-else>
+            <div v-if="noData === true">
+              <p colspan="6" class="text-center">No Data Here ...</p>
+            </div>
+            <div
+              v-for="(data, index) in dashboardData"
+              :key="data.id"
+              class="card mb-3 shadow-sm"
+            >
+              <div class="card-body">
+                <h5 class="card-title">
+                  No: {{ (currentPage - 1) * perPage + index + 1 }}
+                </h5>
+                <p class="card-text">Title: {{ data.title }}</p>
+                <p v-if="data.image !== null" class="card-text">
+                  Image:
+                  <img
+                    :src="'http://127.0.0.1:8000/storage/images/' + data.image"
+                    alt=""
+                    class="img-thumbnail"
+                  />
+                </p>
+                <p class="card-text">Description: {{ data.description }}</p>
+                <p class="card-text">Date: {{ data.date }}</p>
+                <p class="card-text">Jam Mulai: {{ data.start_time }}</p>
+                <div class="card-text">
+                  <span>Jam Selesai: {{ data.end_time }}</span>
+                  <button @click="toggleDropdown(data.id)" class="btn ms-3 p-0">
+                    <i class="bi bi bi-three-dots"></i>
+                  </button>
+                  <div
+                    v-if="activeDropdownId === data.id"
+                    class="dropdown-menu show vertical-dropdown"
+                  >
+                    <li>
+                      <button
+                        @click="openDetailModal(data.id)"
+                        class="btn p-2 w-100"
+                      >
+                        <i class="bi bi-eye fs-5"></i>
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        class="btn p-2 w-100"
+                        @click="openEditModal(data.id)"
+                      >
+                        <i class="bi bi-pencil fs-5"></i>
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        @click="deleteMonitoring(data.id)"
+                        class="btn p-2 w-100"
+                      >
+                        <i class="bi bi-trash fs-5"></i>
+                      </button>
+                    </li>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+          <PagintaionComponent
+            v-if="dashboardData.length > 0"
+            :prevLink="links.prev"
+            :nextLink="links.next"
+            :links="paginationLinks"
+            @change-page="fetchData"
+            class="pagination"
+          />
         </div>
-        <PagintaionComponent
-          v-if="dashboardData.length > 0"
-          :prevLink="links.prev"
-          :nextLink="links.next"
-          :links="paginationLinks"
-          @change-page="fetchData"
-          class="pagination"
-        />
       </div>
     </div>
   </div>
@@ -398,7 +399,7 @@ export default {
             didOpen: () => {
               Swal.showLoading();
             },
-          })
+          });
           const token = "Bearer " + localStorage.getItem("token");
 
           axios
@@ -483,6 +484,7 @@ export default {
         })
         .then((response) => {
           this.dashboardData = response.data.data;
+          this.noData = false
         })
         .catch((error) => {
           console.log(error);
