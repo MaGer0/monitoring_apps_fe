@@ -1,7 +1,7 @@
 <template>
   <AppSidebar />
   <div class="dashboard-container w-100" @click.self="toggleDropdown(null)">
-    <div class="container p-md-3 " ref="dashboard">
+    <div class="container p-md-3" ref="dashboard">
       <div
         class="header mt-3 mx-3 d-flex justify-content-between align-items-center gap-2"
         ref="dashboardHeader"
@@ -48,6 +48,13 @@
         v-if="showDetail"
         :detailMonitoring="selectedMonitoringId"
         @close="closeDetailModal"
+      />
+
+      <EditModal
+        v-if="showEditModal"
+        :detailMonitoring="selectIdMonitoring"
+        @update="handleEditSubmit"
+        @close="closeEditModal"
       />
 
       <div class="content-container">
@@ -107,7 +114,10 @@
                         </button>
                       </li>
                       <li>
-                        <button class="btn p-2 w-100">
+                        <button
+                          class="btn p-2 w-100"
+                          @click="openEditModal(data.id)"
+                        >
                           <i class="bi bi-pencil fs-5"></i>
                         </button>
                       </li>
@@ -171,7 +181,10 @@
                     </button>
                   </li>
                   <li>
-                    <button class="btn p-2 w-100">
+                    <button
+                      class="btn p-2 w-100"
+                      @click="openEditModal(data.id)"
+                    >
                       <i class="bi bi-pencil fs-5"></i>
                     </button>
                   </li>
@@ -206,6 +219,7 @@ import CreateModal from "@/components/CreateModal.vue";
 import AppSidebar from "@/components/AppSidebar.vue";
 import ExportModules from "@/components/ExportModules.vue";
 import PagintaionComponent from "@/components/PagintaionComponent.vue";
+import EditModal from "@/components/EditModal.vue";
 import gsap from "gsap";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -219,11 +233,13 @@ export default {
     PagintaionComponent,
     ExportModules,
     Swal,
+    EditModal,
   },
   data() {
     return {
       showModal: false,
       showDetail: false,
+      showEditModal: false,
       selectedMonitoringId: null,
       dashboardData: [],
       activeDropdownId: null,
@@ -409,6 +425,30 @@ export default {
     closeDetailModal() {
       this.showDetail = false;
       this.selectedMonitoringId = null;
+    },
+
+    openEditModal(id) {
+      this.selectIdMonitoring = id; // Menyimpan data yang dipilih
+      this.showEditModal = true; // Tampilkan modal edit
+    },
+    closeEditModal() {
+      this.showEditModal = false; // Sembunyikan modal edit
+      this.selectIdMonitoring = null; // Reset data yang dipilih
+    },
+    handleEditSubmit() {
+      const token = "Bearer " + localStorage.getItem("token");
+      axios
+        .get("http://127.0.0.1:8000/api/monitorings", {
+          headers: {
+            Authorization: token,
+          },
+        })
+        .then((response) => {
+          this.dashboardData = response.data.data;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     },
   },
 };
