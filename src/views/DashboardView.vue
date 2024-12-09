@@ -51,6 +51,14 @@
         @close="closeDetailModal"
       />
 
+      <EditModal
+        v-if="showEditModal"
+        :detailMonitoring="selectIdMonitoring"
+        @update="handleEditSubmit"
+        @close="closeEditModal"
+      />
+
+      <div class="content-container">
       <div class="d-flex justify-content-center" v-if="isSearching">
         <div class="spinner-border text-primary" role="status">
           <span class="visually-hidden">Loading...</span>
@@ -114,7 +122,10 @@
                         </button>
                       </li>
                       <li>
-                        <button class="btn p-2 w-100">
+                        <button
+                          class="btn p-2 w-100"
+                          @click="openEditModal(data.id)"
+                        >
                           <i class="bi bi-pencil fs-5"></i>
                         </button>
                       </li>
@@ -180,7 +191,10 @@
                     </button>
                   </li>
                   <li>
-                    <button class="btn p-2 w-100">
+                    <button
+                      class="btn p-2 w-100"
+                      @click="openEditModal(data.id)"
+                    >
                       <i class="bi bi-pencil fs-5"></i>
                     </button>
                   </li>
@@ -216,6 +230,7 @@ import CreateModal from "@/components/CreateModal.vue";
 import AppSidebar from "@/components/AppSidebar.vue";
 import ExportModules from "@/components/ExportModules.vue";
 import PagintaionComponent from "@/components/PagintaionComponent.vue";
+import EditModal from "@/components/EditModal.vue";
 import LoadingSpinner from "@/components/LoadingSpinner.vue";
 import gsap from "gsap";
 import axios from "axios";
@@ -230,12 +245,14 @@ export default {
     PagintaionComponent,
     ExportModules,
     Swal,
+    EditModal,
     LoadingSpinner,
   },
   data() {
     return {
       showModal: false,
       showDetail: false,
+      showEditModal: false,
       selectedMonitoringId: null,
       dashboardData: [],
       activeDropdownId: null,
@@ -446,6 +463,30 @@ export default {
     closeDetailModal() {
       this.showDetail = false;
       this.selectedMonitoringId = null;
+    },
+
+    openEditModal(id) {
+      this.selectIdMonitoring = id; // Menyimpan data yang dipilih
+      this.showEditModal = true; // Tampilkan modal edit
+    },
+    closeEditModal() {
+      this.showEditModal = false; // Sembunyikan modal edit
+      this.selectIdMonitoring = null; // Reset data yang dipilih
+    },
+    handleEditSubmit() {
+      const token = "Bearer " + localStorage.getItem("token");
+      axios
+        .get("http://127.0.0.1:8000/api/monitorings", {
+          headers: {
+            Authorization: token,
+          },
+        })
+        .then((response) => {
+          this.dashboardData = response.data.data;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     },
   },
 };
