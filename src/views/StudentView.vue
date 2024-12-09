@@ -40,7 +40,9 @@
         </div>
       </div>
 
-      <div class="input-group search-container">
+      <LoadingSpinner v-if="isLoading" />
+
+      <div class="input-group search-container" v-else>
         <span class="input-group-text" id="basic-addon2">
           <button class="btn btn-sm">
             <i class="bi bi-search"></i>
@@ -56,7 +58,13 @@
         />
       </div>
 
-      <div class="content-container">
+      <div class="d-flex justify-content-center" v-if="isSearching">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+
+      <div class="content-container" v-if="!isSearching">
         <div class="table-responsive">
           <table
             class="table table-borderless table-hover shadow-sm"
@@ -71,13 +79,13 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-if="noDataStudent">
+              <tr v-if="noDataStudent === true">
                 <td
                   colspan="6"
                   rowspan="6"
                   class="text-center p-5 fw-bold fs-4"
                 >
-                  Data Not Found
+                  No Data Here ...
                 </td>
               </tr>
               <tr v-for="(data, index) in dashboardData" :key="data.id">
@@ -92,10 +100,12 @@
           </table>
         </div>
 
+        <LoadingSpinner v-if="isLoading" />
+
         <!-- Mobile -->
-        <div class="d-block d-md-none">
-          <div v-if="noData === true">
-            <h1 class="text-center p-5 fw-bold fs-4">Budi</h1>
+        <div class="d-block d-md-none" v-else>
+          <div v-if="noDataStudent === true">
+            <h1 class="text-center p-5 fw-bold fs-4">No Data Here ...</h1>
           </div>
           <div v-for="(data, index) in dashboardData" :key="data.id">
             <div class="card mb-3 shadow-sm">
@@ -111,6 +121,7 @@
           </div>
         </div>
         <PagintaionComponent
+          v-if="dashboardData.length > 0"
           :prevLink="links.prev"
           :nextLink="links.next"
           :links="paginationLinks"
@@ -125,6 +136,7 @@
 <script>
 import AppSidebar from "@/components/AppSidebar.vue";
 import PagintaionComponent from "@/components/PagintaionComponent.vue";
+import LoadingSpinner from "@/components/LoadingSpinner.vue";
 import axios from "axios";
 import gsap from "gsap";
 import Swal from "sweetalert2";
@@ -135,6 +147,7 @@ export default {
     AppSidebar,
     PagintaionComponent,
     Swal,
+    LoadingSpinner,
   },
   data() {
     return {
@@ -145,6 +158,8 @@ export default {
       perPage: null,
       noDataStudent: false,
       showExample: false,
+      isLoading: true,
+      isSearching: false,
     };
   },
   mounted() {
@@ -203,13 +218,17 @@ export default {
       });
     },
 
-    searchDataStudent(value) {
+    searchDataStudent(event) {
       const token = "Bearer " + localStorage.getItem("token");
-      const search = value.target.value;
+      const search = event.target.value;
+
+      this.isSearching = true;
 
       if (search.trim() === "") {
         this.fetchDataStudent();
         this.noDataStudent = false;
+        this.isSearching = false;
+        this.isLoading = true;
         return;
       }
 
@@ -222,21 +241,26 @@ export default {
         .then((response) => {
           if (response.data.data.length === 0) {
             this.noDataStudent = true;
+            this.isSearching = false;
             this.dashboardData = [];
             this.paginationLinks = [];
           } else {
             this.dashboardData = response.data.data;
-            this.paginationLinks = response.data.links;
             this.noDataStudent = false;
+            this.isSearching = false;
           }
-          console.log(this.noDataStudent);
         })
         .catch((error) => {
           console.log(error);
-        });
+          this.isSearching = false;
+        })
+        .finally(() => {
+          this.isLoading = false;
+        })
     },
     async fetchDataStudent(url = "http://127.0.0.1:8000/api/students") {
       try {
+        this.isLoading = true;
         const response = await axios.get(url, {
           headers: {
             Authorization: "Bearer " + localStorage.getItem("token"),
@@ -247,6 +271,10 @@ export default {
         this.dashboardData = data;
         this.links.prev = links.prev;
         this.links.next = links.next;
+        if (this.dashboardData.length === 0) {
+          this.noDataStudent = true;
+          this.paginationLinks = [];
+        }
         this.paginationLinks = meta.links.map((link) => ({
           label: link.label,
           url: link.url,
@@ -256,6 +284,8 @@ export default {
         this.perPage = meta.per_page;
       } catch (error) {
         console.error("Error fetching data:", error);
+      } finally {
+        this.isLoading = false;
       }
     },
     submitImport(e) {

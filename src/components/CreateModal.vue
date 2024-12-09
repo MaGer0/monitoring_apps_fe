@@ -123,8 +123,8 @@
               </template>
             </treeselect>
           </div>
-          <div class="modal-footer d-flex justify-content-end gap-2">
-            <button
+          <div class="modal-footer">
+          <button
               type="button"
               class="btn btn-secondary"
               @click="cancelModal"
@@ -208,6 +208,16 @@ export default {
     submitForm() {
       this.isSubmit = true;
 
+      Swal.fire({
+        title: "Mengirim Data...",
+        loaderHtml: '<i class="fa fa-refresh fa-spin"></i>',
+        showConfirmButton: false,
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading()
+        }
+      });
+
       const token = "Bearer " + localStorage.getItem("token");
       this.detailData = this.detailDataModel.map((item) => {
         const [students_nisn, keterangan] = item.split(" ");
@@ -255,18 +265,38 @@ export default {
                 this.$emit("kirimData");
               }, 150);
               Swal.fire({
+                title: "Berhasil!",
+                text: "Data berhasil dibuat.",
                 icon: "success",
-                title: "Berhasil",
-                text: "Data Monitoring berhasil dibuat!",
-                timer: 1000,
                 showConfirmButton: false,
+                timer: 1500,
+                showClass: {
+                  popup: "animate__animated animate__fadeInDown",
+                },
+                hideClass: {
+                  popup: "animate__animated animate__fadeOutUp",
+                },
               });
+
               this.isSubmit = false;
               this.closeModal();
             });
         })
         .catch((error) => {
           console.log(error.response.data);
+          Swal.fire({
+            title: "Gagal!",
+            text: "Data gagal dibuat.",
+            icon: "error",
+            showConfirmButton: false,
+            timer: 1500,
+            showClass: {
+              popup: "animate__animated animate__fadeInDown",
+            },
+            hideClass: {
+              popup: "animate__animated animate__fadeOutUp",
+            },
+          })
         });
     },
     resetModal() {
@@ -316,7 +346,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -329,7 +359,6 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding-bottom: 1rem;
 }
 
 .modal-container {
@@ -372,5 +401,26 @@ export default {
 
 .input-time:focus {
   outline: none;
+}
+
+input[type="file"] {
+  font-size: 14px;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: end;
+  gap: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .modal-overlay {
+    height: 970px;
+    padding-bottom: 20rem;
+  }
+  .modal-container {
+    width: 90%;
+    height: 60%;
+  }
 }
 </style>

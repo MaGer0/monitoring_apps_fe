@@ -4,7 +4,7 @@
     :style="hamburgerStyle"
     @click="toggleSidebar"
   >
-  <i class="bi" :class="showSidebar ? 'bi-x-lg' : 'bi-list'"></i>
+    <i class="bi" :class="showSidebar ? 'bi-x-lg' : 'bi-list'"></i>
   </button>
   <div
     :class="[
@@ -89,9 +89,9 @@
         </router-link>
         <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
           <li>
-            <router-link to="/login" class="dropdown-item">
-              <span class="text-danger fw-bold" @click="logout">Logout</span>
-            </router-link>
+            <button class="btn dropdown-item" @click="logout">
+              <span class="text-danger fw-bold">Logout</span>
+            </button>
           </li>
           <li>
             <router-link to="/profile" class="dropdown-item">
@@ -107,6 +107,7 @@
 <script>
 import { gsap } from "gsap";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 export default {
   name: "AppSidebar",
@@ -158,22 +159,62 @@ export default {
       }
     },
     logout() {
-      axios
-        .get("http://localhost:8000/api/logout", {
-          headers: {
-            Accept: "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        })
-        .then(() => {
-          localStorage.removeItem("token");
-          setTimeout(() => {
-            this.$router.push({ path: "/login" });
-          }, 200)
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+      const currentPath = this.$route.fullPath;
+      localStorage.setItem("lastPage", currentPath)
+
+      Swal.fire({
+        title: "Logout",
+        text: "Apakah Anda yakin ingin logout?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Ya, Logout",
+        cancelButtonText: "Batal",
+      }).then((result) => {
+        if (result.isConfirmed) {
+
+          Swal.fire({
+            title: "Sedang Logout ...",
+            loaderHtml: '<i class="fa fa-refresh fa-spin"></i>',
+            showConfirmButton: false,
+            allowOutsideClick: false,
+            didOpen: () => {
+              Swal.showLoading();
+            },
+          })
+          
+          axios
+            .get("http://localhost:8000/api/logout", {
+              headers: {
+                Accept: "application/json",
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
+            })
+            .then(() => {
+              localStorage.removeItem("token");
+
+              setTimeout(() => {
+                this.$router.push({
+                  path: "/login",
+                  query: { redirect: currentPath },
+                });
+              }, 200);
+
+              Swal.fire({
+                icon: "success",
+                title: "Logout Berhasil",
+                showConfirmButton: false,
+                timer: 1000,
+              });
+            })
+            .catch((error) => {
+              console.log(error);
+            });
+        } else {
+          this.$router.push(currentPath);
+        }
+      });
     },
   },
   mounted() {

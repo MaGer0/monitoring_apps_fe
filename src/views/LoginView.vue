@@ -1,7 +1,6 @@
 <template>
   <div
     id="login"
-    data-aos="fade-right"
     class="d-flex justify-content-center align-items-center vh-100 w-100"
   >
     <div class="login-container container">
@@ -9,14 +8,14 @@
         <div class="row g-0">
           <div class="col-md-6 col-lg-5 d-none d-md-block">
             <img
-              data-aos="zoom-in"
+              ref="loginImage"
               src="../assets/images/register-access-login-password-internet-online-website-concept-flat-illustration_385073-108.png"
               alt="Login Illustration"
               class="img-fluid login-image"
             />
           </div>
           <div class="col-md-6 col-lg-7 d-flex align-items-center">
-            <div class="card-body p-4 p-md-5">
+            <div ref="loginCard" class="card-body p-4 p-md-5">
               <form @submit.prevent="loginMethod">
                 <div class="header text-center mb-4">
                   <h1>Login</h1>
@@ -33,18 +32,6 @@
                     required
                   />
                 </div>
-                <!-- <div class="mb-3">
-                  <label for="name" class="form-label"
-                    ><i class="bi bi-person-circle"></i> Name</label
-                  >
-                  <input
-                    type="text"
-                    class="form-control"  
-                    placeholder="Enter your name"
-                    v-model="loginData.name"
-                    required
-                  />
-                </div> -->
                 <div class="mb-3">
                   <label for="password" class="form-label"
                     ><i class="bi bi-key"></i> Password</label
@@ -75,8 +62,9 @@
 </template>
 
 <script>
-import Aos from "aos";
+import { gsap } from "gsap";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 export default {
   name: "LoginView",
@@ -89,6 +77,16 @@ export default {
   methods: {
     loginMethod() {
       if (this.loginData.nik && this.loginData.password) {
+        Swal.fire({
+          title: "Tunggu Sebentar ...",
+          loaderHtml: '<i class="fa fa-refresh fa-spin"></i>',
+          showConfirmButton: false,
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          },
+        });
+
         const newLoginData = {
           nik: this.loginData.nik,
           name: this.loginData.name,
@@ -101,23 +99,58 @@ export default {
             },
           })
           .then((response) => {
+            Swal.close();
+
+            Swal.fire({
+              icon: "success",
+              title: "Success",
+              text: "Berhasil Login!",
+              showConfirmButton: false,
+              timer: 1000,
+            });
             localStorage.setItem("token", response.data);
-            this.$router.push({ path: "/home" });
+
+            const redirectPath = localStorage.getItem("lastPage") || "/";
+            this.$router.push(redirectPath);
           })
           .catch((error) => {
             console.log(error);
-            alert("NIK atau password salah");
+            Swal.close();
+
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: "NIK atau Password Salah!",
+              showConfirmButton: false,
+              timer: 1000,
+            });
+
+            this.$router.push({ path: "/login" });
           });
       } else {
-        alert("NIK dan password harus diisi");
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "NIK atau Password Kosong!",
+          showConfirmButton: false,
+          timer: 1000,
+        });
         this.$router.push({ path: "/login" });
       }
     },
   },
   mounted() {
-    Aos.init({
-      duration: 1000,
-      once: true,
+    gsap.from(this.$refs.loginImage, {
+      duration: 1,
+      opacity: 0,
+      x: -100,
+    });
+
+    gsap.from(this.$refs.loginCard, {
+      duration: 1,
+      opacity: 0,
+      x: 100,
+      delay: 0.5,
     });
   },
 };
@@ -133,9 +166,6 @@ export default {
 }
 
 @media (min-width: 768px) {
-  /* .login-container {
-      max-width: 800px;
-    } */
   .card-body {
     padding: 4rem;
   }
