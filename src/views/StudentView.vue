@@ -2,12 +2,14 @@
   <AppSidebar />
   <div class="dashboard-container w-100">
     <div class="container p-3" ref="dashboard">
+      <LoadingSpinner v-if="isLoading" />
       <div
         class="header mt-3 mx-3 d-flex justify-content-between align-items-center gap-2"
         ref="dashboardHeader"
+        v-else
       >
         <h2 class="fw-bold">Student</h2>
-        <button @click="showExample = true" class="btn">
+        <button @click="showExample = true" class="btn border-0">
           <label for="import-file" class="btn btn-primary custom-file-label"
             ><i class="bi bi-upload"></i> Import</label
           >
@@ -40,9 +42,7 @@
         </div>
       </div>
 
-      <LoadingSpinner v-if="isLoading" />
-
-      <div class="input-group search-container" v-else>
+      <div class="input-group search-container">
         <span class="input-group-text" id="basic-addon2">
           <button class="btn btn-sm">
             <i class="bi bi-search"></i>
@@ -253,10 +253,11 @@ export default {
         .catch((error) => {
           console.log(error);
           this.isSearching = false;
+          this.isLoading = false;
         })
         .finally(() => {
           this.isLoading = false;
-        })
+        });
     },
     async fetchDataStudent(url = "http://127.0.0.1:8000/api/students") {
       try {
@@ -284,6 +285,7 @@ export default {
         this.perPage = meta.per_page;
       } catch (error) {
         console.error("Error fetching data:", error);
+        this.isLoading = false;
       } finally {
         this.isLoading = false;
       }
@@ -301,6 +303,16 @@ export default {
       const formData = new FormData();
       formData.append("file", file);
 
+      Swal.fire({
+        title: "Mengimport Data",
+        loaderHtml: '<i class="fa fa-refresh fa-spin"></i>',
+        timer: 500,
+        showConfirmButton: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
       axios
         .post("http://127.0.0.1:8000/api/students/import", formData, {
           headers: {
@@ -311,6 +323,9 @@ export default {
         .then((response) => {
           setTimeout(() => {
             this.dashboardData.push(response.data.data);
+            this.showExample = false;
+            this.isLoading = false;
+            this.isSearching = false;
           }, 150);
           this.fetchDataStudent();
 
@@ -321,8 +336,6 @@ export default {
             timer: 1000,
             showConfirmButton: false,
           });
-
-          this.showExample = false;
         })
         .catch((error) => {
           console.log(error.response ? error.response.data : error.message);
