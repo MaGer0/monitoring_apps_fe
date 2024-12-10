@@ -255,6 +255,7 @@ export default {
       showDetail: false,
       showEditModal: false,
       selectedMonitoringId: null,
+      selectedIdMonitoring: null,
       dashboardData: [],
       activeDropdownId: null,
       links: {},
