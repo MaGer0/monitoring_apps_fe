@@ -1,26 +1,30 @@
 <template>
-  <AppSidebar/>
-  <div id="home" data-aos="fade-right" class="container d-flex justify-content-center align-items-center vh-100">
+  <AppSidebar />
+  <div
+    id="home"
+    data-aos="fade-right"
+    class="container d-flex justify-content-center align-items-center vh-100"
+  >
     <h1 data-aos="zoom-out-up" class="text-center">Welcome!</h1>
   </div>
 </template>
 
 <script>
-import Aos from 'aos';
+import Aos from "aos";
 import "aos/dist/aos.css";
-import AppSidebar from '@/components/AppSidebar.vue';
+import AppSidebar from "@/components/AppSidebar.vue";
 export default {
   name: "HomeView",
   components: {
-    AppSidebar
+    AppSidebar,
   },
   mounted() {
     Aos.init({
       duration: 1000,
-      once: true
-    })
-  }
-}
+      once: true,
+    });
+  },
+};
 </script>
 
 <style>

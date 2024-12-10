@@ -45,7 +45,7 @@
               <div class="d-flex flex-column" v-else>
                 <img class="img-fluid mt-3" :src="computedImage" />
                 <button
-                  @click="removeImage"
+                  @click="removeImage(mainData.id)"
                   class="btn btn-danger text-light mt-2"
                 >
                   <i class="bi bi-x"></i>
@@ -119,6 +119,8 @@
                 :multiple="true"
                 v-model="detailDataModel"
                 class="treeselect shadow"
+                @select="selectTree"
+                @input="selectTree"
               >
                 <template #value-label="{ node }">
                   <div>{{ node.raw.customLabel }}</div>
@@ -185,6 +187,11 @@ export default {
     },
   },
   methods: {
+    selectTree(evt) {
+      console.log("evt", evt);
+      console.log("detail", this.detailDataModel);
+      console.log("options", this.options);
+    },
     closeModal() {
       this.animateModalOut();
     },
@@ -236,22 +243,54 @@ export default {
           this.detailData = detailResponse.data.data;
 
           console.log(this.detailData);
-          console.log(detailResponse.data.data);
+          console.log(detailResponse.data.data, "cas");
 
-          // this.detailDataModel = this.detailData.map((item) => {
+          // this.detailDataModel = detailResponse.data.data.map((item) => {
           //   return {
           //     id: item.student.nisn,
-          //     label: item.student.name ,
+          //     label: item.student.name,
           //     children: [
           //       {
           //         id: item.student.nisn + ` ${item.keterangan}`,
-          //         label: item.keterangan,
+          //         label: `${item.keterangan}`,
           //         customLabel: `${item.student.name} - ${item.keterangan}`,
-          //       }
-          //     ]
+          //       },
+          //     ],
           //   };
           // });
-          // console.log(this.detailDataModel);
+
+          for (let a = 0; a < detailResponse.data.data.length; a++) {
+            let custom_id = [
+              detailResponse.data.data[a].student.nisn +
+                " " +
+                detailResponse.data.data[a].keterangan,
+            ];
+            // console.log(custom_id);
+            function derDer(kontop) {
+              return {
+                id: kontop[0],
+                label: detailResponse.data.data[a].student.name,
+                customLabel: `${detailResponse.data.data[a].student.name} - ${detailResponse.data.data[a].keterangan}`,
+                children: [
+                  {
+                    id:
+                      detailResponse.data.data[a].student.nisn +
+                      ` ${detailResponse.data.data[a].keterangan}`,
+                    label: `${detailResponse.data.data[a].keterangan}`,
+                    customLabel: `${detailResponse.data.data[a].student.name} - ${detailResponse.data.data[a].keterangan}`,
+                  },
+                ],
+              };
+            }
+
+            console.log(this.detailDataModel);
+            console.log(derDer(custom_id));
+
+            this.detailDataModel.push(custom_id);
+
+            console.log(this.detailDataModel);
+          }
+          console.log(this.detailDataModel, "isi");
         })
         .catch((error) => {
           console.error(error);
@@ -296,13 +335,22 @@ export default {
 
         const dataForSubmit = new FormData();
         dataForSubmit.append("_method", "PUT");
-        dataForSubmit.append("image", this.$refs.fileInput.files[0]);
+        this.mainData.image &&
+          dataForSubmit.append("image", this.$refs.fileInput.files[0]);
 
         this.monitoring.title = this.mainData.title;
         this.monitoring.description = this.mainData.description;
         this.monitoring.date = this.mainData.date;
         this.monitoring.start_time = this.mainData.start_time.substring(0, 5);
         this.monitoring.end_time = this.mainData.end_time.substring(0, 5);
+
+        !this.mainData.image &&
+          axios.delete(`http://127.0.0.1:8000/api/monitorings/${id}/image`, {
+            headers: {
+              Authorization: `Bearer ${localStorage.token}`,
+            },
+          });
+
         const response = axios.put(
           `http://127.0.0.1:8000/api/monitorings/${id}`,
           this.monitoring,
@@ -313,18 +361,18 @@ export default {
             },
           }
         );
-        await axios.post(
-          `http://127.0.0.1:8000/api/monitorings/${id}/image`,
-          dataForSubmit,
-          {
-            headers: {
-              Authorization: token,
-              Accept: "application/json",
-            },
-          }
-        );
-
-        const monitoringsId = response.data.data.id;
+        this.mainData.image &&
+          (await axios.post(
+            `http://127.0.0.1:8000/api/monitorings/${id}/image`,
+            dataForSubmit,
+            {
+              headers: {
+                Authorization: token,
+                Accept: "application/json",
+              },
+            }
+          ));
+        const monitoringsId = (await response).data.data.id;
         await axios.put(
           `http://127.0.0.1:8000/api/notpresents/${monitoringsId}`,
           this.detailData,
@@ -350,7 +398,6 @@ export default {
             popup: "animate__animated animate__fadeOutUp",
           },
         });
-
         this.isSubmit = false;
         this.closeModal();
       } catch (error) {
@@ -358,7 +405,7 @@ export default {
 
         Swal.fire({
           icon: "error",
-          text:  !this.$refs.fileInput.files[0] ?  error.response.statusText : error.response.data.message,
+          text: "Gagal",
           showConfirmButton: false,
           timer: 1500,
           showClass: {
