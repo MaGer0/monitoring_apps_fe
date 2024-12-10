@@ -265,10 +265,9 @@ export default {
                 " " +
                 detailResponse.data.data[a].keterangan,
             ];
-            // console.log(custom_id);
-            function derDer(kontop) {
+            function derDer(customId) {
               return {
-                id: kontop[0],
+                id: customId[0],
                 label: detailResponse.data.data[a].student.name,
                 customLabel: `${detailResponse.data.data[a].student.name} - ${detailResponse.data.data[a].keterangan}`,
                 children: [
@@ -504,5 +503,16 @@ export default {
 
 .form-control {
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.25);
+}
+
+@media (max-width: 768px) {
+  .modal-overlay {
+    height: 970px;
+    padding-bottom: 20rem;
+  }
+  .modal-container {
+    width: 90%;
+    height: 60%;
+  }
 }
 </style>
