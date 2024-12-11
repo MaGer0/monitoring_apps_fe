@@ -330,7 +330,7 @@ export default {
             },
           }
         );
-        this.mainData.image &&
+        this.$refs.fileInput.files[0] &&
           (await axios.post(
             `http://127.0.0.1:8000/api/monitorings/${id}/image`,
             dataForSubmit,
@@ -477,8 +477,7 @@ export default {
 
 @media (max-width: 768px) {
   .modal-overlay {
-    height: 970px;
-    padding-bottom: 20rem;
+    height: 100vh;
   }
   .modal-container {
     width: 90%;
