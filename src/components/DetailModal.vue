@@ -179,4 +179,15 @@ export default {
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
+
+@media (max-width: 768px) {
+  .modal-overlay {
+    height: 970px;
+    padding-bottom: 20rem;
+  }
+  .modal-container {
+    width: 90%;
+    height: 60%;
+  }
+}
 </style>

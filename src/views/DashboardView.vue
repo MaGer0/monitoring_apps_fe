@@ -175,7 +175,7 @@
                 <p class="card-text">Jam Mulai: {{ data.start_time }}</p>
                 <div class="card-text">
                   <span>Jam Selesai: {{ data.end_time }}</span>
-                  <button @click="toggleDropdown(data.id)" class="btn ms-3 p-0">
+                  <button @click="toggleDropdown(data.id)" class="btn border-0 ms-3 p-0">
                     <i class="bi bi bi-three-dots"></i>
                   </button>
                   <div
@@ -619,7 +619,7 @@ td:first-child {
 .dropdown-menu.show {
   display: block;
   position: absolute;
-  z-index: 1000;
+  z-index: 90;
 }
 
 .horizontal-dropdown {

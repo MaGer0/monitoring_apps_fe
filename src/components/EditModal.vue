@@ -474,4 +474,15 @@ export default {
 .form-control {
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.25);
 }
+
+@media (max-width: 768px) {
+  .modal-overlay {
+    height: 970px;
+    padding-bottom: 20rem;
+  }
+  .modal-container {
+    width: 90%;
+    height: 60%;
+  }
+}
 </style>
