@@ -328,8 +328,11 @@ export default {
 
         const token = "Bearer " + localStorage.getItem("token");
 
+        console.log(this.detailDataModel);
+
         this.detailData = this.detailDataModel.map((item) => {
-          const [students_nisn, keterangan] = item.split(" ");
+          console.log(item);
+          const [students_nisn, keterangan] = item[item.length - 1].split(" ");
           return { students_nisn, keterangan };
         });
 
