@@ -9,18 +9,11 @@
         v-else
       >
         <h2 class="fw-bold">Student</h2>
-        <button @click="showExample = true" class="btn border-0">
-          <label for="import-file" class="btn btn-primary custom-file-label"
+        <button @click="showExampleOverlay" class="btn border-0">
+          <label class="btn btn-primary custom-file-label"
             ><i class="bi bi-upload"></i> Import</label
           >
         </button>
-        <input
-          type="file"
-          class="custom-file-input"
-          id="import-file"
-          @change="submitImport"
-          ref="importFile"
-        />
       </div>
 
       <div v-if="showExample" class="example-overlay" ref="exampleOverlay">
@@ -29,15 +22,36 @@
           style="max-width: 400px; width: 90%"
         >
           <div class="card-body">
-            <h5 class="card-title-format">Contoh Format</h5>
+            <div
+              class="card-head d-flex justify-content-between align-items-center"
+            >
+              <h5 class="card-title-format">Contoh Format</h5>
+              <button @click="hideExample" class="btn button-close border-0">
+                <i class="close-format bi bi-x"></i>
+              </button>
+            </div>
             <img
               src="../assets/images/contoh-format.png"
               alt="Contoh Format"
               class="img-fluid mb-3"
             />
-            <button @click="hideExample" class="btn btn-secondary w-100">
-              Close
-            </button>
+            <div class="card-footer d-flex justify-content-between">
+              <button class="btn btn-primary">
+                <label for="import-file">
+                  <i class="bi bi-upload"></i> Pilih File
+                </label>
+                <input
+                  type="file"
+                  class="custom-file-input"
+                  id="import-file"
+                  @change="submitImport"
+                  ref="importFile"
+                />
+              </button>
+              <button @click="downloadFormat" class="btn btn-success">
+                <i class="bi bi-download"></i> Download Format
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -79,7 +93,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-if="noDataStudent === true">
+              <tr v-if="noDataStudent">
                 <td
                   colspan="6"
                   rowspan="6"
@@ -88,7 +102,7 @@
                   No Data Here ...
                 </td>
               </tr>
-              <tr v-for="(data, index) in dashboardData" :key="data.id">
+              <tr v-for="(data, index) in dashboardData" :key="index">
                 <td class="text-center">
                   {{ (currentPage - 1) * perPage + index + 1 }}
                 </td>
@@ -104,10 +118,10 @@
 
         <!-- Mobile -->
         <div class="d-block d-md-none" v-else>
-          <div v-if="noDataStudent === true">
+          <div v-if="noDataStudent">
             <h1 class="text-center p-5 fw-bold fs-4">No Data Here ...</h1>
           </div>
-          <div v-for="(data, index) in dashboardData" :key="data.id">
+          <div v-for="(data, index) in dashboardData" :key="index">
             <div class="card mb-3 shadow-sm">
               <div class="card-body">
                 <h5 class="card-title">
@@ -194,17 +208,59 @@ export default {
       delay: 0.6,
       ease: "back.out(1.7)",
     });
-
-    if (this.showExample === true) {
-      gsap.from(".example-overlay", {
-        opacity: 0,
-        scale: 0.8,
-        duration: 0.5,
-        ease: "power2.out",
-      });
-    }
   },
   methods: {
+    downloadFormat() {
+      const token = "Bearer " + localStorage.getItem("token");
+      axios
+        .get("http://127.0.0.1:8000/api/students/example", {
+          headers: {
+            Authorization: token,
+          },
+          responseType: "blob",
+        })
+        .then((response) => {
+          const blob = new Blob([response.data], {
+            type: response.headers["content-type"],
+          });
+
+          const link = document.createElement("a");
+          link.href = window.URL.createObjectURL(blob);
+          link.download = "Students_Format.xlsx";
+          link.click();
+
+          Swal.fire({
+            icon: "success",
+            title: "Success",
+            text: "Format berhasil di Download",
+            timer: 1000,
+            showConfirmButton: false,
+          });
+
+          this.hideExample();
+        })
+        .catch((error) => {
+          console.log(error);
+
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Format gagal di Download",
+            timer: 1000,
+          });
+          this.hideExample();
+        });
+    },
+    showExampleOverlay() {
+      this.showExample = true;
+      this.$nextTick(() => {
+        gsap.fromTo(
+          this.$refs.exampleOverlay,
+          { opacity: 0, scale: 0.8 },
+          { opacity: 1, scale: 1, duration: 0.5, ease: "power2.out" }
+        );
+      });
+    },
     hideExample() {
       gsap.to(".example-overlay", {
         opacity: 0,
@@ -213,7 +269,7 @@ export default {
         ease: "power2.in",
         onComplete: () => {
           this.showExample = false;
-          this.$refs.importFile.value = null;
+          // this.$refs.importFile.value = null;
         },
       });
     },
@@ -286,14 +342,18 @@ export default {
       } catch (error) {
         console.error("Error fetching data:", error);
         this.isLoading = false;
+        this.isSearching = false;
       } finally {
         this.isLoading = false;
+        this.isSearching = false;
       }
     },
     submitImport(e) {
+      this.showExample = false;
       const file = e.target.files[0];
       if (file) {
         console.log(file);
+        this.showExample = false;
         this.importData(file);
       }
     },
@@ -323,10 +383,11 @@ export default {
         .then((response) => {
           setTimeout(() => {
             this.dashboardData.push(response.data.data);
+            this.noDataStudent = false;
             this.showExample = false;
             this.isLoading = false;
             this.isSearching = false;
-          }, 150);
+          }, 200);
           this.fetchDataStudent();
 
           Swal.fire({
@@ -336,9 +397,14 @@ export default {
             timer: 1000,
             showConfirmButton: false,
           });
+
+          this.showExample = false;
+          this.isLoading = false;
+          this.isSearching = false;
         })
         .catch((error) => {
           console.log(error.response ? error.response.data : error.message);
+          this.fetchDataStudent();
 
           Swal.fire({
             icon: "error",
@@ -347,6 +413,10 @@ export default {
             timer: 1000,
             showConfirmButton: false,
           });
+
+          this.showExample = false;
+          this.isLoading = false;
+          this.isSearching = false;
         });
     },
   },
@@ -374,16 +444,34 @@ export default {
 
 .example-overlay {
   position: fixed;
-  top: 0;
-  right: 0;
   width: 100%;
-  height: 100vh;
   z-index: 1050;
   display: flex;
-  justify-content: flex-end;
-  align-items: flex-start;
+  justify-content: center;
+  align-items: center;
   padding: 2rem;
 }
+
+.close-format {
+  font-size: 1.5rem;
+  color: #dc3545;
+  border: 1px solid #dc3545;
+  border-radius: 50%;
+  padding: 0;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.close-format:hover {
+  cursor: pointer;
+  background-color: #dc3545;
+  color: #fff;
+}
+
 .card-format {
   background-color: #f8f9fa;
   border-radius: 10px;
@@ -545,6 +633,16 @@ td:first-child {
     display: flex;
     justify-content: center;
     align-items: center;
+  }
+
+  .card-head .card-title-format, .button-close {
+    font-size: 4vw;
+  }
+
+  .card-footer {
+   display: flex;
+   flex-direction: column-reverse;
+   gap: 0.5rem;
   }
 
   .header {
