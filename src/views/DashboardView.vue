@@ -5,7 +5,8 @@
       <LoadingSpinner v-if="isLoading" />
       <div
         class="header mt-3 mx-3 d-flex justify-content-between align-items-center gap-2"
-        ref="dashboardHeader" v-else
+        ref="dashboardHeader"
+        v-else
       >
         <h2 class="fw-bold">Dashboard</h2>
         <div class="d-flex gap-2">
@@ -20,7 +21,6 @@
           </button>
         </div>
       </div>
-      
 
       <div class="input-group search-container">
         <span class="input-group-text" id="basic-addon2">
@@ -175,7 +175,10 @@
                 <p class="card-text">Jam Mulai: {{ data.start_time }}</p>
                 <div class="card-text">
                   <span>Jam Selesai: {{ data.end_time }}</span>
-                  <button @click="toggleDropdown(data.id)" class="btn border-0 ms-3 p-0">
+                  <button
+                    @click="toggleDropdown(data.id)"
+                    class="btn border-0 ms-3 p-0"
+                  >
                     <i class="bi bi bi-three-dots"></i>
                   </button>
                   <div
@@ -485,7 +488,7 @@ export default {
         })
         .then((response) => {
           this.dashboardData = response.data.data;
-          this.noData = false
+          this.noData = false;
         })
         .catch((error) => {
           console.log(error);
