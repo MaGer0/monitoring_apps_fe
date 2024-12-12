@@ -213,6 +213,16 @@ export default {
   },
   methods: {
     downloadFormat() {
+      Swal.fire({
+        title: "Mengunduh Format...",
+        loaderHtml: '<i class="fa fa-refresh fa-spin"></i>',
+        timer: 1000,
+        showConfirmButton: false,
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading()
+        }
+      })
       const token = "Bearer " + localStorage.getItem("token");
       axios
         .get("http://127.0.0.1:8000/api/students/example", {
@@ -360,11 +370,6 @@ export default {
       }
     },
     importData(file) {
-      const token = "Bearer " + localStorage.getItem("token");
-
-      const formData = new FormData();
-      formData.append("file", file);
-
       Swal.fire({
         title: "Mengimport Data",
         loaderHtml: '<i class="fa fa-refresh fa-spin"></i>',
@@ -375,6 +380,11 @@ export default {
         },
       });
 
+      const token = "Bearer " + localStorage.getItem("token");
+      
+      const formData = new FormData();
+      formData.append("file", file);
+
       axios
         .post("http://127.0.0.1:8000/api/students/import", formData, {
           headers: {
@@ -384,7 +394,7 @@ export default {
         })
         .then((response) => {
           setTimeout(() => {
-            this.dashboardData.push(response.data.data);
+            this.dashboardData.push(response.data);
             this.noDataStudent = false;
             this.showExample = false;
             this.isLoading = false;
@@ -405,8 +415,7 @@ export default {
           this.isSearching = false;
         })
         .catch((error) => {
-          console.log(error.response ? error.response.data : error.message);
-          this.fetchDataStudent();
+          console.log(error.response ? error.response.data : error.message)
 
           Swal.fire({
             icon: "error",
