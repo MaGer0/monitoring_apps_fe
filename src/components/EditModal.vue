@@ -187,11 +187,7 @@ export default {
     },
   },
   methods: {
-    selectTree(evt) {
-      console.log("evt", evt);
-      console.log("detail", this.detailDataModel);
-      console.log("options", this.options);
-    },
+    selectTree(evt) {},
     closeModal() {
       this.animateModalOut();
     },
@@ -242,9 +238,6 @@ export default {
           this.mainData = mainResponse.data.data;
           this.detailData = detailResponse.data.data;
 
-          console.log(this.detailData);
-          console.log(detailResponse.data.data, "cas");
-
           // this.detailDataModel = detailResponse.data.data.map((item) => {
           //   return {
           //     id: item.student.nisn,
@@ -260,36 +253,13 @@ export default {
           // });
 
           for (let a = 0; a < detailResponse.data.data.length; a++) {
-            let custom_id = [
+            let custom_id =
               detailResponse.data.data[a].student.nisn +
-                " " +
-                detailResponse.data.data[a].keterangan,
-            ];
-            function derDer(customId) {
-              return {
-                id: customId[0],
-                label: detailResponse.data.data[a].student.name,
-                customLabel: `${detailResponse.data.data[a].student.name} - ${detailResponse.data.data[a].keterangan}`,
-                children: [
-                  {
-                    id:
-                      detailResponse.data.data[a].student.nisn +
-                      ` ${detailResponse.data.data[a].keterangan}`,
-                    label: `${detailResponse.data.data[a].keterangan}`,
-                    customLabel: `${detailResponse.data.data[a].student.name} - ${detailResponse.data.data[a].keterangan}`,
-                  },
-                ],
-              };
-            }
-
-            console.log(this.detailDataModel);
-            console.log(derDer(custom_id));
+              " " +
+              detailResponse.data.data[a].keterangan;
 
             this.detailDataModel.push(custom_id);
-
-            console.log(this.detailDataModel);
           }
-          console.log(this.detailDataModel, "isi");
         })
         .catch((error) => {
           console.error(error);

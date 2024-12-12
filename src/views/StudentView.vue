@@ -210,17 +210,59 @@ export default {
       delay: 0.6,
       ease: "back.out(1.7)",
     });
-
-    if (this.showExample === true) {
-      gsap.from(".example-overlay", {
-        opacity: 0,
-        scale: 0.8,
-        duration: 0.5,
-        ease: "power2.out",
-      });
-    }
   },
   methods: {
+    downloadFormat() {
+      const token = "Bearer " + localStorage.getItem("token");
+      axios
+        .get("http://127.0.0.1:8000/api/students/example", {
+          headers: {
+            Authorization: token,
+          },
+          responseType: "blob",
+        })
+        .then((response) => {
+          const blob = new Blob([response.data], {
+            type: response.headers["content-type"],
+          });
+
+          const link = document.createElement("a");
+          link.href = window.URL.createObjectURL(blob);
+          link.download = "Students_Format.xlsx";
+          link.click();
+
+          Swal.fire({
+            icon: "success",
+            title: "Success",
+            text: "Format berhasil di Download",
+            timer: 1000,
+            showConfirmButton: false,
+          });
+
+          this.hideExample();
+        })
+        .catch((error) => {
+          console.log(error);
+
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Format gagal di Download",
+            timer: 1000,
+          });
+          this.hideExample();
+        });
+    },
+    showExampleOverlay() {
+      this.showExample = true;
+      this.$nextTick(() => {
+        gsap.fromTo(
+          this.$refs.exampleOverlay,
+          { opacity: 0, scale: 0.8 },
+          { opacity: 1, scale: 1, duration: 0.5, ease: "power2.out" }
+        );
+      });
+    },
     hideExample() {
       gsap.to(".example-overlay", {
         opacity: 0,
@@ -229,7 +271,7 @@ export default {
         ease: "power2.in",
         onComplete: () => {
           this.showExample = false;
-          this.$refs.importFile.value = null;
+          // this.$refs.importFile.value = null;
         },
       });
     },
@@ -302,14 +344,18 @@ export default {
       } catch (error) {
         console.error("Error fetching data:", error);
         this.isLoading = false;
+        this.isSearching = false;
       } finally {
         this.isLoading = false;
+        this.isSearching = false;
       }
     },
     submitImport(e) {
+      this.showExample = false;
       const file = e.target.files[0];
       if (file) {
         console.log(file);
+        this.showExample = false;
         this.importData(file);
       }
     },
@@ -339,10 +385,11 @@ export default {
         .then((response) => {
           setTimeout(() => {
             this.dashboardData.push(response.data.data);
+            this.noDataStudent = false;
             this.showExample = false;
             this.isLoading = false;
             this.isSearching = false;
-          }, 150);
+          }, 200);
           this.fetchDataStudent();
 
           Swal.fire({
@@ -352,9 +399,14 @@ export default {
             timer: 1000,
             showConfirmButton: false,
           });
+
+          this.showExample = false;
+          this.isLoading = false;
+          this.isSearching = false;
         })
         .catch((error) => {
           console.log(error.response ? error.response.data : error.message);
+          this.fetchDataStudent();
 
           Swal.fire({
             icon: "error",
@@ -363,6 +415,10 @@ export default {
             timer: 1000,
             showConfirmButton: false,
           });
+
+          this.showExample = false;
+          this.isLoading = false;
+          this.isSearching = false;
         });
     },
   },
@@ -391,16 +447,34 @@ export default {
 
 .example-overlay {
   position: fixed;
-  top: 0;
-  right: 0;
   width: 100%;
-  height: 100vh;
   z-index: 1050;
   display: flex;
-  justify-content: flex-end;
-  align-items: flex-start;
+  justify-content: center;
+  align-items: center;
   padding: 2rem;
 }
+
+.close-format {
+  font-size: 1.5rem;
+  color: #dc3545;
+  border: 1px solid #dc3545;
+  border-radius: 50%;
+  padding: 0;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.close-format:hover {
+  cursor: pointer;
+  background-color: #dc3545;
+  color: #fff;
+}
+
 .card-format {
   background-color: #f8f9fa;
   border-radius: 10px;
@@ -569,8 +643,7 @@ td:first-child {
     align-items: center;
   }
 
-  .card-head .card-title-format,
-  .button-close {
+  .card-head .card-title-format, .button-close {
     font-size: 4vw;
   }
 
