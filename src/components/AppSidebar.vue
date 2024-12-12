@@ -121,7 +121,7 @@ export default {
     hamburgerStyle() {
       return this.showSidebar
         ? {
-            transform: "translateX(55px)",
+            transform: "translateX(60px)",
           }
         : { transform: "translateX(0)" };
     },

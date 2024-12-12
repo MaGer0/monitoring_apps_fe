@@ -1,147 +1,149 @@
 <template>
-  <AppSidebar />
-  <div class="dashboard-container w-100">
-    <div class="container p-3" ref="dashboard">
-      <LoadingSpinner v-if="isLoading" />
-      <div
-        class="header mt-3 mx-3 d-flex justify-content-between align-items-center gap-2"
-        ref="dashboardHeader"
-        v-else
-      >
-        <h2 class="fw-bold">Student</h2>
-        <button @click="showExampleOverlay" class="btn border-0">
-          <label class="btn btn-primary custom-file-label"
-            ><i class="bi bi-upload"></i> Import</label
-          >
-        </button>
-      </div>
-
-      <div v-if="showExample" class="example-overlay" ref="exampleOverlay">
-        <div
-          class="card-format p-3 shadow-lg"
-          style="max-width: 400px; width: 90%"
-        >
-          <div class="card-body">
-            <div
-              class="card-head d-flex justify-content-between align-items-center"
-            >
-              <h5 class="card-title-format">Contoh Format</h5>
-              <button @click="hideExample" class="btn button-close border-0">
-                <i class="close-format bi bi-x"></i>
-              </button>
-            </div>
-            <img
-              src="../assets/images/contoh-format.png"
-              alt="Contoh Format"
-              class="img-fluid mb-3"
-            />
-            <div class="card-footer d-flex justify-content-between">
-              <button class="btn btn-primary">
-                <label for="import-file">
-                  <i class="bi bi-upload"></i> Pilih File
-                </label>
-                <input
-                  type="file"
-                  class="custom-file-input"
-                  id="import-file"
-                  @change="submitImport"
-                  ref="importFile"
-                />
-              </button>
-              <button @click="downloadFormat" class="btn btn-success">
-                <i class="bi bi-download"></i> Download Format
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="input-group search-container">
-        <span class="input-group-text" id="basic-addon2">
-          <button class="btn btn-sm">
-            <i class="bi bi-search"></i>
-          </button>
-        </span>
-        <input
-          type="text"
-          class="form-control form-control-sm"
-          placeholder="Cari Judul atau Deskripsi"
-          aria-label="Cari Judul atau Deskripsi"
-          aria-describedby="basic-addon2"
-          @keyup="searchDataStudent"
-        />
-      </div>
-
-      <div class="d-flex justify-content-center" v-if="isSearching">
-        <div class="spinner-border text-primary" role="status">
-          <span class="visually-hidden">Loading...</span>
-        </div>
-      </div>
-
-      <div class="content-container" v-if="!isSearching">
-        <div class="table-responsive">
-          <table
-            class="table table-borderless table-hover shadow-sm"
-            ref="dashboardTable"
-          >
-            <thead class="opacity-50">
-              <tr class="opacity-100 table-light text">
-                <th class="text-center">No</th>
-                <th class="text-start">NISN</th>
-                <th class="text-start">Nama</th>
-                <th class="text-start">Kelas</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-if="noDataStudent">
-                <td
-                  colspan="6"
-                  rowspan="6"
-                  class="text-center p-5 fw-bold fs-4"
-                >
-                  No Data Here ...
-                </td>
-              </tr>
-              <tr v-for="(data, index) in dashboardData" :key="index">
-                <td class="text-center">
-                  {{ (currentPage - 1) * perPage + index + 1 }}
-                </td>
-                <td class="text-start">{{ data.nisn }}</td>
-                <td class="text-start">{{ data.name }}</td>
-                <td class="text-start">{{ data.class }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
+  <div class="dashboard-container d-flex w-100">
+    <AppSidebar />
+    <div class=" w-100">
+      <div class="container p-3" ref="dashboard">
         <LoadingSpinner v-if="isLoading" />
+        <div
+          class="header mt-3 mx-3 d-flex justify-content-between align-items-center gap-2"
+          ref="dashboardHeader"
+          v-else
+        >
+          <h2 class="fw-bold">Student</h2>
+          <button @click="showExampleOverlay" class="btn border-0">
+            <label class="btn btn-primary custom-file-label"
+              ><i class="bi bi-upload"></i> Import</label
+            >
+          </button>
+        </div>
 
-        <!-- Mobile -->
-        <div class="d-block d-md-none" v-else>
-          <div v-if="noDataStudent">
-            <h1 class="text-center p-5 fw-bold fs-4">No Data Here ...</h1>
-          </div>
-          <div v-for="(data, index) in dashboardData" :key="index">
-            <div class="card mb-3 shadow-sm">
-              <div class="card-body">
-                <h5 class="card-title">
-                  No: {{ (currentPage - 1) * perPage + index + 1 }}
-                </h5>
-                <p class="card-text">NISN: {{ data.nisn }}</p>
-                <p class="card-text">Nama: {{ data.name }}</p>
-                <p class="card-text">Kelas: {{ data.class }}</p>
+        <div v-if="showExample" class="example-overlay" ref="exampleOverlay">
+          <div
+            class="card-format p-3 shadow-lg"
+            style="max-width: 400px; width: 90%"
+          >
+            <div class="card-body">
+              <div
+                class="card-head d-flex justify-content-between align-items-center"
+              >
+                <h5 class="card-title-format">Contoh Format</h5>
+                <button @click="hideExample" class="btn button-close border-0">
+                  <i class="close-format bi bi-x"></i>
+                </button>
+              </div>
+              <img
+                src="../assets/images/contoh-format.png"
+                alt="Contoh Format"
+                class="img-fluid mb-3"
+              />
+              <div class="card-footer d-flex justify-content-between">
+                <button class="btn btn-primary">
+                  <label for="import-file">
+                    <i class="bi bi-upload"></i> Pilih File
+                  </label>
+                  <input
+                    type="file"
+                    class="custom-file-input"
+                    id="import-file"
+                    @change="submitImport"
+                    ref="importFile"
+                  />
+                </button>
+                <button @click="downloadFormat" class="btn btn-success">
+                  <i class="bi bi-download"></i> Download Format
+                </button>
               </div>
             </div>
           </div>
         </div>
-        <PagintaionComponent
-          v-if="dashboardData.length > 0"
-          :prevLink="links.prev"
-          :nextLink="links.next"
-          :links="paginationLinks"
-          @change-page="fetchDataStudent"
-          class="pagination"
-        />
+
+        <div class="input-group search-container">
+          <span class="input-group-text" id="basic-addon2">
+            <button class="btn btn-sm">
+              <i class="bi bi-search"></i>
+            </button>
+          </span>
+          <input
+            type="text"
+            class="form-control form-control-sm"
+            placeholder="Cari Judul atau Deskripsi"
+            aria-label="Cari Judul atau Deskripsi"
+            aria-describedby="basic-addon2"
+            @keyup="searchDataStudent"
+          />
+        </div>
+
+        <div class="d-flex justify-content-center" v-if="isSearching">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+
+        <div class="content-container" v-if="!isSearching">
+          <div class="table-responsive">
+            <table
+              class="table table-borderless table-hover shadow-sm"
+              ref="dashboardTable"
+            >
+              <thead class="opacity-50">
+                <tr class="opacity-100 table-light text">
+                  <th class="text-center">No</th>
+                  <th class="text-start">NISN</th>
+                  <th class="text-start">Nama</th>
+                  <th class="text-start">Kelas</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-if="noDataStudent">
+                  <td
+                    colspan="6"
+                    rowspan="6"
+                    class="text-center p-5 fw-bold fs-4"
+                  >
+                    No Data Here ...
+                  </td>
+                </tr>
+                <tr v-for="(data, index) in dashboardData" :key="index">
+                  <td class="text-center">
+                    {{ (currentPage - 1) * perPage + index + 1 }}
+                  </td>
+                  <td class="text-start">{{ data.nisn }}</td>
+                  <td class="text-start">{{ data.name }}</td>
+                  <td class="text-start">{{ data.class }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <LoadingSpinner v-if="isLoading" />
+
+          <!-- Mobile -->
+          <div class="d-block d-md-none" v-else>
+            <div v-if="noDataStudent">
+              <h1 class="text-center p-5 fw-bold fs-4">No Data Here ...</h1>
+            </div>
+            <div v-for="(data, index) in dashboardData" :key="index">
+              <div class="card mb-3 shadow-sm">
+                <div class="card-body">
+                  <h5 class="card-title">
+                    No: {{ (currentPage - 1) * perPage + index + 1 }}
+                  </h5>
+                  <p class="card-text">NISN: {{ data.nisn }}</p>
+                  <p class="card-text">Nama: {{ data.name }}</p>
+                  <p class="card-text">Kelas: {{ data.class }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <PagintaionComponent
+            v-if="dashboardData.length > 0"
+            :prevLink="links.prev"
+            :nextLink="links.next"
+            :links="paginationLinks"
+            @change-page="fetchDataStudent"
+            class="pagination"
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -432,6 +434,7 @@ export default {
   position: relative;
   overflow: hidden;
   height: 100vh;
+  padding: 0;
 }
 
 .dashboard-container::before {
@@ -616,6 +619,11 @@ td:first-child {
 }
 
 @media (max-width: 768px) {
+  .dashboard-container {
+    padding: 0;
+    margin: 0;
+  }
+
   .table-responsive {
     display: none;
   }
@@ -626,7 +634,7 @@ td:first-child {
   }
 
   .dashboard-container {
-    padding: 10px;
+    padding: 0;
   }
 
   .example-overlay {
@@ -640,9 +648,9 @@ td:first-child {
   }
 
   .card-footer {
-   display: flex;
-   flex-direction: column-reverse;
-   gap: 0.5rem;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 0.5rem;
   }
 
   .header {
