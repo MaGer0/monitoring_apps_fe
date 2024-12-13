@@ -2,7 +2,14 @@
   <div class="dashboard-container d-flex w-100">
     <AppSidebar />
     <div class="w-100" @click.self="toggleDropdown(null)">
-      <div class="container p-md-3" ref="dashboard">
+      <div
+        :class="
+          showModal || showEditModal || showDetail || showExportModal
+            ? 'conu p-md-3'
+            : 'container p-md-3'
+        "
+        ref="dashboard"
+      >
         <LoadingSpinner v-if="isLoading" />
         <div
           class="header mt-3 mx-3 d-flex justify-content-between align-items-center gap-2"
@@ -11,10 +18,7 @@
         >
           <h2 class="fw-bold">Dashboard</h2>
           <div class="d-flex gap-2">
-            <button
-              class="btn btn-primary"
-              @click="$refs.exportModules.openModal"
-            >
+            <button class="btn btn-primary" @click="openExportModal">
               <i class="bi bi-box-arrow-in-right"></i> Export
             </button>
             <button class="btn btn-warning" @click="openCreateModal(id)">
@@ -38,7 +42,7 @@
           />
         </div>
 
-        <ExportModules ref="exportModules" />
+        <ExportModules v-if="showExportModal" @close="closeExportModal" />
 
         <CreateModal
           v-if="showModal"
@@ -252,12 +256,12 @@ export default {
     DetailModal,
     PagintaionComponent,
     ExportModules,
-    Swal,
     EditModal,
     LoadingSpinner,
   },
   data() {
     return {
+      showExportModal: false,
       showModal: false,
       showDetail: false,
       showEditModal: false,
@@ -272,6 +276,7 @@ export default {
       noData: false,
       isLoading: true,
       isSearching: false,
+      timerSearch: null,
     };
   },
   mounted() {
@@ -302,45 +307,54 @@ export default {
     document.addEventListener("click", this.closeDropdown);
   },
   methods: {
+    // keyUpDelay(event) {
+    //   let counter = event.target.value;
+
+    //   if(counter.length++) {
+    //   }
+    //   this.isLoading = true;
+    // },
     searchValue(event) {
       const token = "Bearer " + localStorage.getItem("token");
       const search = event.target.value;
-
       this.isSearching = true;
 
-      if (search.trim() === "") {
-        this.fetchData();
-        this.noData = false;
-        this.isSearching = false;
-        this.isLoading = true;
-        return;
-      }
+      clearTimeout(this.timerSearch);
 
-      axios
-        .get(`http://127.0.0.1:8000/api/monitorings/search/${search}`, {
-          headers: {
-            Authorization: token,
-          },
-        })
-        .then((response) => {
-          if (response.data.data.length === 0) {
-            this.noData = true;
+      this.timerSearch = setTimeout(() => {
+        if (search.trim() === "") {
+          this.fetchData();
+          console.log("KOKOKOKOKOKO");
+          return;
+        }
+
+        axios
+          .get(`http://127.0.0.1:8000/api/monitorings/search/${search}`, {
+            headers: {
+              Authorization: token,
+            },
+          })
+          .then((response) => {
+            if (response.data.data.length === 0) {
+              this.noData = true;
+              this.isSearching = false;
+              this.dashboardData = [];
+              this.paginationLinks = [];
+            } else {
+              this.dashboardData = response.data.data;
+              this.noData = false;
+              this.isSearching = false;
+            }
+          })
+          .catch((error) => {
+            console.log(error);
             this.isSearching = false;
-            this.dashboardData = [];
-            this.paginationLinks = [];
-          } else {
-            this.dashboardData = response.data.data;
-            this.noData = false;
-            this.isSearching = false;
-          }
-        })
-        .catch((error) => {
-          console.log(error);
-          this.isSearching = false;
-        })
-        .finally(() => {
-          this.isLoading = false;
-        });
+            this.isLoading = false;
+          })
+          .finally(() => {
+            this.isLoading = false;
+          });
+      }, 500);
     },
     closeDropdown(e) {
       const dropdown = document.querySelector(".dropdown-menu");
@@ -358,34 +372,40 @@ export default {
     async fetchData(
       url = `http://127.0.0.1:8000/api/monitorings?page=${this.currentPage}`
     ) {
-      try {
-        this.isLoading = true;
-        const response = await axios.get(url, {
+      this.isLoading = true;
+      const response = await axios
+        .get(url, {
           headers: {
             Authorization: "Bearer " + localStorage.getItem("token"),
           },
-        });
-        const { data, links, meta } = response.data;
+        })
+        .then((response) => {
+          const { data, links, meta } = response.data;
 
-        this.dashboardData = data;
-        this.links.prev = links.prev;
-        this.links.next = links.next;
-        if (this.dashboardData.length === 0) {
-          this.noData = true;
-          this.paginationLinks = [];
-        }
-        this.paginationLinks = meta.links.map((link) => ({
-          label: link.label,
-          url: link.url,
-          active: link.active,
-        }));
-        this.currentPage = meta.current_page;
-        this.perPage = meta.per_page;
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        this.isLoading = false;
-      }
+          this.dashboardData = data;
+          this.links.prev = links.prev;
+          this.links.next = links.next;
+          if (this.dashboardData.length === 0) {
+            this.noData = true;
+            this.paginationLinks = [];
+          }
+          this.paginationLinks = meta.links.map((link) => ({
+            label: link.label,
+            url: link.url,
+            active: link.active,
+          }));
+          this.currentPage = meta.current_page;
+          this.perPage = meta.per_page;
+          this.isLoading = false;
+        })
+        .catch((err) => {
+          console.error("Error fetching data:", err);
+        })
+        .finally(() => {
+          this.isLoading = false;
+          this.noData = false;
+          this.isSearching = false;
+        });
     },
     deleteMonitoring(id) {
       Swal.fire({
@@ -430,6 +450,7 @@ export default {
                   this.currentPage--;
                   const prevUrl = `http://127.0.0.1:8000/api/monitorings?page=${this.currentPage}`;
                   this.fetchData(prevUrl);
+                  this.noData = false;
                 }
               });
             })
@@ -443,6 +464,12 @@ export default {
             });
         }
       });
+    },
+    openExportModal() {
+      this.showExportModal = true;
+    },
+    closeExportModal() {
+      this.showExportModal = false;
     },
     openCreateModal() {
       this.showModal = true;
@@ -459,6 +486,7 @@ export default {
         })
         .then((response) => {
           this.dashboardData = response.data.data;
+          this.paginationLinks = response.data.meta.links;
           this.noData = false;
         })
         .catch((error) => {
@@ -492,6 +520,13 @@ export default {
         })
         .then((response) => {
           this.dashboardData = response.data.data;
+          if (this.dashboardData.length % 10 === 0) {
+            this.paginationLinks = meta.links.map((link) => ({
+              label: link.label,
+              url: link.url,
+              active: link.active,
+            }));
+          }
           this.noData = false;
         })
         .catch((error) => {
@@ -509,7 +544,6 @@ export default {
   background-repeat: no-repeat;
   background-position: center;
   position: relative;
-  overflow: hidden;
   height: 100vh;
 }
 
@@ -572,6 +606,11 @@ export default {
   scrollbar-color: rgba(0, 0, 0, 0.1);
   height: 100vh;
   overflow-y: auto;
+}
+
+.conu {
+  overflow: hidden;
+  height: 100vh;
 }
 
 .content-container {
@@ -696,6 +735,9 @@ td:first-child {
 }
 
 @media (max-width: 768px) {
+  #toTop {
+    display: inline-block;
+  }
   .table-responsive {
     display: none;
   }

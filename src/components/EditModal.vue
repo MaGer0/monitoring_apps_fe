@@ -439,7 +439,7 @@ export default {
   top: 0;
   left: 0;
   width: 100%;
-  height: 100vh;
+  height: 100%;
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(5px);
   z-index: 999;
@@ -477,7 +477,11 @@ export default {
 
 @media (max-width: 768px) {
   .modal-overlay {
-    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+    height: 100%;
   }
   .modal-container {
     width: 90%;
