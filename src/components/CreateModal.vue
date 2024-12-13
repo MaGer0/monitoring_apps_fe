@@ -352,13 +352,14 @@ export default {
   top: 0;
   left: 0;
   width: 100%;
-  height: 105vh;
+  height: 100%;
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(5px);
   z-index: 999;
   display: flex;
   justify-content: center;
   align-items: center;
+  overflow: hidden;
 }
 
 .modal-container {
@@ -415,8 +416,10 @@ input[type="file"] {
 
 @media (max-width: 768px) {
   .modal-overlay {
-    height: 970px;
-    padding-bottom: 20rem;
+    position: fixed;
+    overflow: hidden;
+    top: 0;
+    height: 100vh;
   }
   .modal-container {
     width: 90%;

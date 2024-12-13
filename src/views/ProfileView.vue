@@ -1,13 +1,16 @@
 <template>
   <div class="profile-container" ref="profileContainer">
-    <router-link to="/home" class="home-link">
+    <router-link to="/dashboard" class="home-link">
       <i class="bi bi-house-door-fill"></i>
-      <span>Home</span>
+      <span>Back</span>
     </router-link>
     <div class="container d-flex justify-content-center align-items-center">
       <div class="row pb-5 pe-5 gap-5 w-100">
         <div class="profile-content col" ref="profileContent">
-          <div class="content-container d-flex justify-content-center align-items-center flex-column" id="contentContainer">
+          <div
+            class="content-container d-flex justify-content-center align-items-center flex-column"
+            id="contentContainer"
+          >
             <div class="image-container img-fluid mb-5">
               <img
                 src="https://img.freepik.com/free-photo/3d-rendering-cartoon-character-with-eyeglasses-jacket_1142-51310.jpg"
@@ -20,30 +23,15 @@
               <form class="text-black">
                 <div class="mb-3">
                   <label for="name" class="form-label">Name</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="name"
-                    v-model="teacherData.name"
-                  />
+                  <p type="text" class="form-control" id="name">{{ teacherData.name }}</p>
                 </div>
                 <div class="mb-3">
                   <label for="email" class="form-label">Email</label>
-                  <input
-                    type="email"
-                    class="form-control"
-                    id="email"
-                    v-model="teacherData.email"
-                  />
+                  <p type="email" class="form-control" id="email">{{ teacherData.email }}</p>
                 </div>
                 <div class="mb-3">
                   <label for="nik" class="form-label">NIK</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="nik"
-                    v-model="teacherData.nik"
-                  />
+                  <p type="text" class="form-control" id="nik">{{ teacherData.nik }}</p>
                 </div>
               </form>
               <div id="buttonContainer"></div>
@@ -81,60 +69,60 @@ export default {
         console.log(error);
       });
 
-    let name = document.getElementById("name");
-    let email = document.getElementById("email");
-    let nik = document.getElementById("nik");
+    // let name = document.getElementById("name");
+    // let email = document.getElementById("email");
+    // let nik = document.getElementById("nik");
 
-    function clearButton() {
-      let buttonContainer = document.getElementById("buttonContainer");
-      buttonContainer.innerHTML = "";
-    }
+    // function clearButton() {
+    //   let buttonContainer = document.getElementById("buttonContainer");
+    //   buttonContainer.innerHTML = "";
+    // }
 
-    function clearAllButton() {
-      let contentContainer = document.getElementById("contentContainer");
-      contentContainer.addEventListener("click", (e) => {
-        if (e.target === contentContainer) {
-          clearButton();
-        }
-      });
-    }
+    // function clearAllButton() {
+    //   let contentContainer = document.getElementById("contentContainer");
+    //   contentContainer.addEventListener("click", (e) => {
+    //     if (e.target === contentContainer) {
+    //       clearButton();
+    //     }
+    //   });
+    // }
 
-    function allButton() {
-      clearButton();
-      clearAllButton();
-      let contentContainer = document.getElementById("contentContainer");
-      let buttonContainer = document.getElementById("buttonContainer");
-      let buttonEdit = document.createElement("button");
-      let buttonCancel = document.createElement("button");
+    // function allButton() {
+    //   clearButton();
+    //   clearAllButton();
+    //   let contentContainer = document.getElementById("contentContainer");
+    //   let buttonContainer = document.getElementById("buttonContainer");
+    //   let buttonEdit = document.createElement("button");
+    //   let buttonCancel = document.createElement("button");
 
-      buttonEdit.className = "btn btn-primary";
-      buttonEdit.innerHTML = "<i class='bi bi-pencil'></i> Edit";
-      buttonEdit.id = "edit";
+    //   buttonEdit.className = "btn btn-primary";
+    //   buttonEdit.innerHTML = "<i class='bi bi-pencil'></i> Edit";
+    //   buttonEdit.id = "edit";
 
-      buttonCancel.className = "btn btn-secondary";
-      buttonCancel.innerHTML = "<i class='bi bi-x'></i> Cancel";
-      buttonCancel.id = "cancel";
-      buttonCancel.addEventListener("click", () => {
-        clearButton();
-      });
+    //   buttonCancel.className = "btn btn-secondary";
+    //   buttonCancel.innerHTML = "<i class='bi bi-x'></i> Cancel";
+    //   buttonCancel.id = "cancel";
+    //   buttonCancel.addEventListener("click", () => {
+    //     clearButton();
+    //   });
 
-      buttonContainer.appendChild(buttonEdit);
-      buttonContainer.appendChild(buttonCancel);
+    //   buttonContainer.appendChild(buttonEdit);
+    //   buttonContainer.appendChild(buttonCancel);
 
-      contentContainer.append(buttonContainer);
-    }
+    //   contentContainer.append(buttonContainer);
+    // }
 
-    name.addEventListener("click", () => {
-      allButton();
-    });
+    // name.addEventListener("click", () => {
+    //   allButton();
+    // });
 
-    email.addEventListener("click", () => {
-      allButton();
-    });
+    // email.addEventListener("click", () => {
+    //   allButton();
+    // });
 
-    nik.addEventListener("click", () => {
-      allButton();
-    });
+    // nik.addEventListener("click", () => {
+    //   allButton();
+    // });
 
     gsap.from(this.$refs.profileContainer, {
       opacity: 0,
@@ -255,7 +243,6 @@ button:hover {
   transform: scale(1.05);
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
-
 
 @media (max-width: 768px) {
   .home-link {

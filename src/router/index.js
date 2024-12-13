@@ -20,11 +20,6 @@ const router = createRouter({
       component: LoginView
     },
     {
-      path: '/home',
-      name: 'home',
-      component: HomeView,
-    },
-    {
       path: '/dashboard',
       name: 'dashboard',
       component: DashboardView
@@ -56,7 +51,7 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   if (to.name === 'login' && localStorage.getItem('token')) {
-    next({ name: 'home' })
+    next({ name: 'dashboard' })
   } else if (to.name !== 'login' && to.name !== 'landing-pages' && !localStorage.getItem('token')) {
     next({ name: 'login' })
   } else {

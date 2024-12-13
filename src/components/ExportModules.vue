@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isVisible" class="export-overlay" ref="overlay" @click.self="closeModal">
+  <div class="export-overlay" ref="overlay" @click.self="closeModal">
     <div class="export-modal" ref="modal">
       <div class="export-header">
         <h3 class="modal-title">Export Data</h3>
@@ -29,13 +29,20 @@ import Swal from "sweetalert2";
 
 export default {
   name: "ExportModules",
-  data() {
-    return {
-      isVisible: false,
-    };
-  },
+  mounted() {
+    this.animateModalIn() 
+  },  
   methods: {
     exportFile(type) {
+      Swal.fire({
+        title: 'Mengexport Data...',
+        loaderHtml: '<i class="fa fa-refresh fa-spin"></i>',
+        timer: 1500,
+        showConfirmButton: false,
+        didOpen: () => {
+          Swal.showLoading()
+        }
+      })
       const token = "Bearer " + localStorage.getItem("token");
       axios
       .get(`http://127.0.0.1:8000/api/export/${type}`, {
@@ -74,33 +81,27 @@ export default {
       this.closeModal();
     },
     closeModal() {
-      const timeline = gsap.timeline({
+      this.animateModalOut();
+    },
+    animateModalIn() {
+      gsap.from(this.$refs.modal, {
+        opacity: 0,
+        duration: 0.5,
+        scale: 0.9,
+        ease: "back.out(1.9)",
+      })
+    },
+    animateModalOut() {
+      gsap.to(this.$refs.modal, {
+        opacity: 0,
+        duration: 0.5,
+        scale: 0,
+        ease: "back.in(2)",
         onComplete: () => {
-          this.isVisible = false;
+          this.$emit("close");
         },
-      });
-      timeline
-        .to(this.$refs.modal, { scale: 0.5, opacity: 0, duration: 0.3 })
-        .to(this.$refs.overlay, { opacity: 0, duration: 0.3 }, "-=0.3");
-    },
-    openModal() {
-      this.isVisible = true;
-
-      this.$nextTick(() => {
-        const timeline = gsap.timeline();
-        timeline
-          .fromTo(
-            this.$refs.overlay,
-            { opacity: 0 },
-            { opacity: 1, duration: 0.3 }
-          )
-          .fromTo(
-            this.$refs.modal,
-            { scale: 0.5, opacity: 0 },
-            { scale: 1, opacity: 1, duration: 0.5, ease: "back.out(1.7)" }
-          );
-      });
-    },
+      })
+    }
   },
 };
 </script>
@@ -193,5 +194,14 @@ export default {
 
 .btn-excel:hover {
   background: rgb(8, 128, 37);
+}
+
+@media (max-width: 768px) {
+  .export-overlay {
+    padding: 1rem;
+  }
+  .export-modal {
+    padding: 1rem;
+  }
 }
 </style>

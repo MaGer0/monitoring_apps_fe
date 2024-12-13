@@ -32,18 +32,6 @@
           <router-link
             class="nav-link active align-middle bg-transparent px-0"
             active-class="fw-bold"
-            to="/home"
-            ref="homeLink"
-          >
-            <i class="fs-4 bi bi-house text-white"></i>
-            <span class="ms-1 d-none d-sm-inline text-white text"> Home</span>
-          </router-link>
-        </li>
-
-        <li class="nav-item">
-          <router-link
-            class="nav-link active align-middle bg-transparent px-0"
-            active-class="fw-bold"
             to="/dashboard"
             ref="dashboardLink"
           >
@@ -160,7 +148,7 @@ export default {
     },
     logout() {
       const currentPath = this.$route.fullPath;
-      localStorage.setItem("lastPage", currentPath)
+      localStorage.setItem("lastPage", currentPath);
 
       Swal.fire({
         title: "Logout",
@@ -173,7 +161,6 @@ export default {
         cancelButtonText: "Batal",
       }).then((result) => {
         if (result.isConfirmed) {
-
           Swal.fire({
             title: "Sedang Logout ...",
             loaderHtml: '<i class="fa fa-refresh fa-spin"></i>',
@@ -182,8 +169,8 @@ export default {
             didOpen: () => {
               Swal.showLoading();
             },
-          })
-          
+          });
+
           axios
             .get("http://localhost:8000/api/logout", {
               headers: {
@@ -267,9 +254,21 @@ export default {
   border: none;
 }
 
+/* .dropdown {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+} */
+
+.dropdown .dropdown-menu.show {
+  min-width: 100%;
+  z-index: 9999;
+}
+
 @media (min-width: 768px) {
   .sidebar {
     display: block;
-  }
+  } 
 }
 </style>

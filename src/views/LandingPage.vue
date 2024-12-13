@@ -1,7 +1,7 @@
 <template>
   <div class="landing-page w-100 vh-100">
     <div class="content">
-      <h1 ref="heading">Welcome to Our Website</h1>
+      <h1 ref="heading">Welcome to Monitoring Apps</h1>
       <p ref="paragraph">Explore our features and get the best experience.</p>
       <button @click="goToLogin" ref="button">Get Started</button>
     </div>
