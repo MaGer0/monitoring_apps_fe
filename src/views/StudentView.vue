@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard-container d-flex w-100">
     <AppSidebar />
-    <div class=" w-100">
+    <div class="w-100">
       <div class="container p-3" ref="dashboard">
         <LoadingSpinner v-if="isLoading" />
         <div
@@ -176,6 +176,7 @@ export default {
       showExample: false,
       isLoading: true,
       isSearching: false,
+      searchTimer: null,
     };
   },
   mounted() {
@@ -220,9 +221,9 @@ export default {
         showConfirmButton: false,
         allowOutsideClick: false,
         didOpen: () => {
-          Swal.showLoading()
-        }
-      })
+          Swal.showLoading();
+        },
+      });
       const token = "Bearer " + localStorage.getItem("token");
       axios
         .get("http://127.0.0.1:8000/api/students/example", {
@@ -289,76 +290,77 @@ export default {
     searchDataStudent(event) {
       const token = "Bearer " + localStorage.getItem("token");
       const search = event.target.value;
-
       this.isSearching = true;
 
-      if (search.trim() === "") {
-        this.fetchDataStudent();
-        this.noDataStudent = false;
-        this.isSearching = false;
-        this.isLoading = true;
-        return;
-      }
-
-      axios
-        .get(`http://127.0.0.1:8000/api/students/search/${search}`, {
-          headers: {
-            Authorization: token,
-          },
-        })
-        .then((response) => {
-          if (response.data.data.length === 0) {
-            this.noDataStudent = true;
+      clearTimeout(this.searchTimer);
+      this.searchTimer = setTimeout(() => {
+        if (search.trim() === "") {
+          this.fetchDataStudent();
+          return;
+        }
+        axios
+          .get(`http://127.0.0.1:8000/api/students/search/${search}`, {
+            headers: {
+              Authorization: token,
+            },
+          })
+          .then((response) => {
+            if (response.data.data.length === 0) {
+              this.noDataStudent = true;
+              this.isSearching = false;
+              this.dashboardData = [];
+              this.paginationLinks = [];
+            } else {
+              this.dashboardData = response.data.data;
+              this.noDataStudent = false;
+              this.isSearching = false;
+            }
+          })
+          .catch((error) => {
+            console.log(error);
             this.isSearching = false;
-            this.dashboardData = [];
-            this.paginationLinks = [];
-          } else {
-            this.dashboardData = response.data.data;
-            this.noDataStudent = false;
-            this.isSearching = false;
-          }
-        })
-        .catch((error) => {
-          console.log(error);
-          this.isSearching = false;
-          this.isLoading = false;
-        })
-        .finally(() => {
-          this.isLoading = false;
-        });
+            this.isLoading = false;
+          })
+          .finally(() => {
+            this.isLoading = false;
+          });
+      }, 500);
     },
     async fetchDataStudent(url = "http://127.0.0.1:8000/api/students") {
-      try {
-        this.isLoading = true;
-        const response = await axios.get(url, {
+      this.isLoading = true;
+       await axios
+        .get(url, {
           headers: {
             Authorization: "Bearer " + localStorage.getItem("token"),
           },
-        });
-        const { data, links, meta } = response.data;
+        })
+        .then((response) => {
+          const { data, links, meta } = response.data;
 
-        this.dashboardData = data;
-        this.links.prev = links.prev;
-        this.links.next = links.next;
-        if (this.dashboardData.length === 0) {
-          this.noDataStudent = true;
-          this.paginationLinks = [];
-        }
-        this.paginationLinks = meta.links.map((link) => ({
-          label: link.label,
-          url: link.url,
-          active: link.active,
-        }));
-        this.currentPage = meta.current_page;
-        this.perPage = meta.per_page;
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        this.isLoading = false;
-        this.isSearching = false;
-      } finally {
-        this.isLoading = false;
-        this.isSearching = false;
-      }
+          this.dashboardData = data;
+          this.links.prev = links.prev;
+          this.links.next = links.next;
+          if (this.dashboardData.length === 0) {
+            this.noDataStudent = true;
+            this.paginationLinks = [];
+          }
+          this.paginationLinks = meta.links.map((link) => ({
+            label: link.label,
+            url: link.url,
+            active: link.active,
+          }));
+          this.currentPage = meta.current_page;
+          this.perPage = meta.per_page;
+          this.isLoading = false;
+        })
+        .catch((err) => {
+          console.error("Error fetching data:", err);
+        })
+        .finally(() => {
+          this.isLoading = false;
+          this.noDataStudent = false;
+          this.isSearching = false;
+        });
     },
     submitImport(e) {
       this.showExample = false;
@@ -381,7 +383,7 @@ export default {
       });
 
       const token = "Bearer " + localStorage.getItem("token");
-      
+
       const formData = new FormData();
       formData.append("file", file);
 
@@ -415,7 +417,7 @@ export default {
           this.isSearching = false;
         })
         .catch((error) => {
-          console.log(error.response ? error.response.data : error.message)
+          console.log(error.response ? error.response.data : error.message);
 
           Swal.fire({
             icon: "error",
@@ -652,7 +654,8 @@ td:first-child {
     align-items: center;
   }
 
-  .card-head .card-title-format, .button-close {
+  .card-head .card-title-format,
+  .button-close {
     font-size: 4vw;
   }
 
