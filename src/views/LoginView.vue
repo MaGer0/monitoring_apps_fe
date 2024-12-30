@@ -110,7 +110,7 @@ export default {
             });
             localStorage.setItem("token", response.data);
 
-            const redirectPath = localStorage.getItem("lastPage") || "/";
+            const redirectPath = localStorage.getItem("lastPage") || "/dashboard";
             this.$router.push(redirectPath);
           })
           .catch((error) => {
