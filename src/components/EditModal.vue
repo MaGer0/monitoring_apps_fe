@@ -130,7 +130,7 @@
             <div class="modal-footer d-flex justify-content-end gap-2">
               <button
                 type="button"
-                class="btn btn-secondary"
+                class="btn btn-danger"
                 @click="cancelModal"
               >
                 <i class="bi bi-x"></i> Cancel

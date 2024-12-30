@@ -126,7 +126,7 @@
           <div class="modal-footer">
           <button
               type="button"
-              class="btn btn-secondary"
+              class="btn btn-danger"
               @click="cancelModal"
             >
               <i class="bi bi-x"></i> Cancel

@@ -18,10 +18,10 @@
         >
           <h2 class="fw-bold">Dashboard</h2>
           <div class="d-flex gap-2">
-            <button class="btn btn-primary" @click="openExportModal">
+            <button class="btn btn-warning" @click="openExportModal">
               <i class="bi bi-box-arrow-in-right"></i> Export
             </button>
-            <button class="btn btn-warning" @click="openCreateModal(id)">
+            <button class="btn btn-primary" @click="openCreateModal(id)">
               <i class="bi bi-plus-square"></i> Create
             </button>
           </div>
